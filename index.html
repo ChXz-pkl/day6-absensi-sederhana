@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Absensi - Pilih Peran</title>
   <style>
-    /* RESET */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
 
-    /* BODY */
     body {
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(135deg, #e0f7fa, #e8f5e9);
@@ -19,6 +17,21 @@
       align-items: center;
       text-align: center;
       padding: 20px;
+      position: relative;
+    }
+
+    /* JAM DI POJOK KANAN ATAS */
+    .jam-container {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 0.95rem;
+      color: #2c3e50;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 
     h1 {
@@ -28,7 +41,6 @@
       text-shadow: 1px 1px rgba(0,0,0,0.1);
     }
 
-    /* CONTAINER */
     .button-container {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -37,7 +49,6 @@
       max-width: 600px;
     }
 
-    /* CARD BUTTON */
     .role-card {
       background: white;
       border-radius: 12px;
@@ -51,12 +62,12 @@
       text-decoration: none;
       color: inherit;
     }
+
     .role-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 8px 20px rgba(0,0,0,0.15);
     }
 
-    /* ICON */
     .role-card svg {
       width: 48px;
       height: 48px;
@@ -64,7 +75,6 @@
       fill: #4CAF50;
     }
 
-    /* LABEL */
     .role-card span {
       font-size: 1.1rem;
       font-weight: bold;
@@ -75,29 +85,41 @@
       h1 { font-size: 1.5rem; }
       .role-card { padding: 1rem; }
       .role-card svg { width: 40px; height: 40px; }
+      .jam-container {
+        font-size: 0.85rem;
+        padding: 4px 10px;
+      }
     }
   </style>
 </head>
 <body>
+
+  <!-- Jam Real-Time -->
+  <div class="jam-container" id="jam">00:00:00</div>
+
   <h1>Silakan Pilih Peran Anda</h1>
+
   <div class="button-container">
-    <!-- Peserta Card -->
     <a href="user.html" class="role-card">
-      <!-- Simple User Icon -->
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
-      </svg>
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/></svg>
       <span>Masuk sebagai Peserta</span>
     </a>
 
-    <!-- Admin Card -->
     <a href="admin.html" class="role-card">
-      <!-- Simple Admin/Shield Icon -->
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M12 1l8 4v6c0 5-3.7 9.8-8 10-4.3-.2-8-5-8-10V5l8-4zM12 3.1L5 6v5c0 4.4 3 8.3 7 8.9 4-.6 7-4.5 7-8.9V6l-7-2.9z"/>
-      </svg>
+      <svg viewBox="0 0 24 24"><path d="M12 1l8 4v6c0 5-3.7 9.8-8 10-4.3-.2-8-5-8-10V5l8-4zM12 3.1L5 6v5c0 4.4 3 8.3 7 8.9 4-.6 7-4.5 7-8.9V6l-7-2.9z"/></svg>
       <span>Masuk sebagai Admin</span>
     </a>
   </div>
+
+  <script>
+    function updateJam() {
+      const now = new Date();
+      const jam = now.toLocaleTimeString('id-ID', { hour12: false });
+      document.getElementById("jam").textContent = jam;
+    }
+    setInterval(updateJam, 1000);
+    updateJam();
+  </script>
+
 </body>
 </html>
