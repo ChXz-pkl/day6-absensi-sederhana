@@ -4,9 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <title>Admin Absensi</title>
-
   <style>
     /* RESET & BASIC */
     *,
@@ -24,14 +22,16 @@
       font-family: 'Segoe UI', sans-serif;
       background: #f4f7f8;
       color: #333;
-      line-height: 1.5;
     }
 
-    /* LAYOUT CONTAINER */
+    body {
+      padding: 20px;
+    }
+
+    /* CONTAINER */
     .container {
       max-width: 1000px;
       margin: auto;
-      padding: 20px;
     }
 
     /* HEADERS */
@@ -40,6 +40,7 @@
       color: #2c3e50;
       margin-bottom: 16px;
       position: relative;
+      padding-bottom: 8px;
     }
 
     h2::after {
@@ -52,7 +53,7 @@
       border-radius: 2px;
     }
 
-    /* FORM “Tambah Peserta” */
+    /* FORM TAMBAH PESERTA */
     form#formTambah {
       background: white;
       padding: 20px;
@@ -89,22 +90,54 @@
       background: #1976D2;
     }
 
-    /* TABEL ABSENSI */
-    table {
+    /* REKAP & FILTER */
+    .filter {
+      margin-bottom: 12px;
+    }
+
+    .filter input {
       width: 100%;
+      max-width: 300px;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    .rekap {
+      text-align: right;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    /* TABEL RESPONSIF */
+    .table-responsive {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-bottom: 20px;
+    }
+
+    .table-responsive table {
+      min-width: 700px;
+      width: auto;
       border-collapse: collapse;
       background: white;
       border-radius: 8px;
       overflow: hidden;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-      margin-bottom: 20px;
     }
 
-    thead th {
+    th,
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+
+    th {
       background: #4CAF50;
       color: white;
-      padding: 12px;
-      text-align: left;
     }
 
     tbody tr:nth-child(even) {
@@ -115,17 +148,20 @@
       background: #f1fdf1;
     }
 
-    td,
-    th {
-      border-bottom: 1px solid #eee;
-      padding: 12px;
-      font-size: 0.95rem;
+    .status-tepat {
+      color: green;
+      font-weight: bold;
+    }
+
+    .status-terlambat {
+      color: red;
+      font-weight: bold;
     }
 
     .btn-hapus {
       color: #e53935;
-      cursor: pointer;
       font-weight: bold;
+      cursor: pointer;
       transition: color .2s;
     }
 
@@ -133,15 +169,7 @@
       color: #b71c1c;
     }
 
-    /* REKAP TEXT */
-    .rekap {
-      font-weight: bold;
-      margin-bottom: 12px;
-      text-align: right;
-      font-size: 0.95rem;
-    }
-
-    /* DAFTAR PESERTA GRID */
+    /* DAFTAR PESERTA */
     ul#daftarPeserta {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -171,27 +199,8 @@
       margin-bottom: 8px;
     }
 
-    /* STATUS BADGE */
-    .status-tepat,
-    .status-terlambat {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-size: 0.85rem;
-    }
-
-    .status-tepat {
-      background: #e8f5e9;
-      color: #2e7d32;
-    }
-
-    .status-terlambat {
-      background: #ffebee;
-      color: #c62828;
-    }
-
     /* RESPONSIVE */
-    @media (max-width: 768px) {
+    @media (max-width:768px) {
       .container {
         padding: 12px;
       }
@@ -206,89 +215,102 @@
 
       input,
       button {
-        padding: 10px;
         font-size: 0.95rem;
+        padding: 10px;
       }
 
-      thead th,
-      td,
-      th {
+      th,
+      td {
         padding: 10px;
+      }
+
+      .table-responsive {
+        margin: -0 -12px;
+        padding: 0 12px;
+      }
+
+      .table-responsive table {
+        box-shadow: none;
+        border-radius: 0;
       }
 
       ul#daftarPeserta {
         gap: 12px;
       }
+
+      ul#daftarPeserta li {
+        max-width: 200px;
+      }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width:480px) {
       h2 {
         font-size: 1.4rem;
       }
 
-      form#formTambah {
-        padding: 12px;
-      }
-
       input,
       button {
+        font-size: 0.9rem;
+        padding: 8px;
+      }
+
+      th,
+      td {
         padding: 8px;
         font-size: 0.9rem;
       }
 
-      thead th,
-      td,
-      th {
-        padding: 8px;
-        font-size: 0.9rem;
+      ul#daftarPeserta img {
+        width: 60px;
+        height: 60px;
       }
     }
   </style>
-
 </head>
 
 <body>
   <div class="container">
+    <h2>Tambah Peserta</h2>
+    <form id="formTambah">
+      <input type="text" id="namaBaru" placeholder="Nama" required />
+      <input type="text" id="nomorBaru" placeholder="Nomor Unik" required />
+      <input type="file" id="fotoBaru" accept="image/*" required />
+      <button type="submit">Tambah Peserta</button>
+    </form>
 
-  <h2>Tambah Peserta</h2>
-  <form id="formTambah">
-    <input type="text" id="namaBaru" placeholder="Nama" required />
-    <input type="text" id="nomorBaru" placeholder="Nomor Unik" required />
-    <input type="file" id="fotoBaru" accept="image/*" required />
-    <button type="submit">Tambah</button>
-  </form>
+    <h2>Data Absensi</h2>
+    <div class="filter">
+      <input type="text" id="cariInput" placeholder="Cari nama..." oninput="renderTabel()" />
+    </div>
+    <div class="rekap" id="rekapInfo"></div>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Nama</th>
+            <th>Nomor</th>
+            <th>Masuk</th>
+            <th>Pulang</th>
+            <th>Status</th>
+            <th>Alasan</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="absenBody"></tbody>
+      </table>
+    </div>
 
-  <h2>Data Absensi</h2>
-  <input type="text" id="cariInput" placeholder="Cari nama..." oninput="renderTabel()" />
-  <div class="rekap" id="rekapInfo"></div>
-  <table>
-    <thead>
-      <tr>
-        <th>Nama</th>
-        <th>Nomor</th>
-        <th>Masuk</th>
-        <th>Pulang</th>
-        <th>Status</th>
-        <th>Alasan</th>
-        <th>Aksi</th>
-      </tr>
-    </thead>
-    <tbody id="absenBody"></tbody>
-  </table>
+    <div style="margin-bottom:30px;">
+      <button onclick="exportCSV()">Export ke CSV</button>
+      <button onclick="hapusSemuaData()">Hapus Semua Data Absensi</button>
+    </div>
 
-  <div style="margin-top: 20px;">
-    <button onclick="exportCSV()">Export ke CSV</button>
-    <button onclick="hapusSemuaData()">Hapus Semua Data Absensi</button>
-  </div>
-
-  <h2>Daftar Peserta</h2>
-  <ul id="daftarPeserta"></ul>
-
+    <h2>Daftar Peserta</h2>
+    <ul id="daftarPeserta"></ul>
   </div>
 
   <script>
-    const pesertaKey = "pesertaList";
-    const absenKey = "absensiList";
+    const pesertaKey = "pesertaList", absenKey = "absensiList";
     const peserta = JSON.parse(localStorage.getItem(pesertaKey)) || [];
     const absensi = JSON.parse(localStorage.getItem(absenKey)) || [];
 
@@ -297,118 +319,89 @@
       localStorage.setItem(absenKey, JSON.stringify(absensi));
     }
 
-    document.getElementById("formTambah").addEventListener("submit", function (e) {
+    document.getElementById("formTambah").addEventListener("submit", e => {
       e.preventDefault();
-
-      const nama = namaBaru.value.trim();
-      const nomor = nomorBaru.value.trim();
-      const file = fotoBaru.files[0];
+      const nama = namaBaru.value.trim(),
+        nomor = nomorBaru.value.trim(),
+        file = fotoBaru.files[0];
       if (!nama || !nomor || !file) return alert("Isi semua field!");
       if (peserta.some(p => p.nomor === nomor)) return alert("Nomor sudah terdaftar!");
-
       const reader = new FileReader();
-      reader.onload = function () {
-        const fotoBase64 = reader.result;
-        peserta.push({ nama, nomor, foto: fotoBase64 });
-        simpanData();
-        renderPeserta();
-        formTambah.reset();
+      reader.onload = () => {
+        peserta.push({ nama, nomor, foto: reader.result });
+        simpanData(); renderPeserta(); formTambah.reset();
         alert("Peserta ditambahkan.");
       };
       reader.readAsDataURL(file);
     });
 
     function renderTabel() {
-      const tbody = document.getElementById("absenBody");
-      const cari = document.getElementById("cariInput").value.toLowerCase();
+      const tbody = document.getElementById("absenBody"),
+        q = document.getElementById("cariInput").value.toLowerCase();
       tbody.innerHTML = "";
-
-      const filtered = absensi.filter(a => a.nama.toLowerCase().includes(cari));
       const rekap = { Hadir: 0, Izin: 0, Sakit: 0, Bolos: 0 };
-
-      filtered.forEach((a, index) => {
+      absensi.filter(a => a.nama.toLowerCase().includes(q)).forEach((a, i) => {
         rekap[a.alasan]++;
-        const statusClass = a.status === "Terlambat" ? "status-terlambat" : "status-tepat";
+        const cls = a.status === "Terlambat" ? "status-terlambat" : "status-tepat";
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${a.nama}</td>
           <td>${a.nomor}</td>
           <td>${a.waktuMasuk ? new Date(a.waktuMasuk).toLocaleString("id-ID") : "-"}</td>
           <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
-          <td class="${statusClass}">${a.status || "-"}</td>
+          <td class="${cls}">${a.status || "-"}</td>
           <td>${a.alasan}</td>
-          <td><span class="btn-hapus" onclick="hapusAbsensi(${index})">Hapus</span></td>
-        `;
+          <td><span class="btn-hapus" onclick="hapusAbsensi(${i})">Hapus</span></td>`;
         tbody.appendChild(tr);
       });
-
       document.getElementById("rekapInfo").textContent =
-        `Total: ${filtered.length} | Hadir: ${rekap.Hadir} | Izin: ${rekap.Izin} | Sakit: ${rekap.Sakit} | Bolos: ${rekap.Bolos}`;
+        `Total: ${absensi.length} | Hadir: ${rekap.Hadir} | Izin: ${rekap.Izin} | Sakit: ${rekap.Sakit} | Bolos: ${rekap.Bolos}`;
     }
 
-    function hapusAbsensi(index) {
+    function hapusAbsensi(i) {
       if (!confirm("Hapus data absensi ini?")) return;
-      absensi.splice(index, 1);
-      simpanData();
-      renderTabel();
+      absensi.splice(i, 1); simpanData(); renderTabel();
     }
-
     function exportCSV() {
-      if (absensi.length === 0) return alert("Belum ada data!");
+      if (!absensi.length) return alert("Belum ada data!");
       let csv = "Nama;Nomor;Waktu Masuk;Waktu Pulang;Status;Alasan\n";
-      absensi.forEach(a => {
-        csv += `"${a.nama}";"${a.nomor}";"${a.waktuMasuk}";"${a.waktuPulang}";"${a.status}";"${a.alasan}"\n`;
-      });
-
-      const blob = new Blob([csv], { type: "text/csv" });
-      const link = document.createElement("a");
+      absensi.forEach(a => csv += `"${a.nama}";"${a.nomor}";"${a.waktuMasuk}";"${a.waktuPulang}";"${a.status}";"${a.alasan}"\n`);
+      const blob = new Blob([csv], { type: "text/csv" }),
+        link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = "absensi.csv";
-      link.click();
+      link.download = "absensi.csv"; link.click();
     }
-
     function hapusSemuaData() {
       if (!confirm("Hapus semua data absensi?")) return;
-      absensi.length = 0;
-      simpanData();
-      renderTabel();
+      absensi.length = 0; simpanData(); renderTabel();
     }
 
     function renderPeserta() {
-      const list = document.getElementById("daftarPeserta");
-      list.innerHTML = "";
+      const ul = document.getElementById("daftarPeserta");
+      ul.innerHTML = "";
       peserta.forEach((p, i) => {
         const li = document.createElement("li");
         li.innerHTML = `
-          <img src="${p.foto}" alt="foto" />
+          <img src="${p.foto}" alt="foto"/>
           <div><strong>${p.nama}</strong></div>
           <div>(${p.nomor})</div>
           <span class="btn-edit" onclick="editPeserta(${i})">Edit</span> |
-          <span class="btn-hapus" onclick="hapusPeserta(${i})">Hapus</span>
-        `;
-        list.appendChild(li);
+          <span class="btn-hapus" onclick="hapusPeserta(${i})">Hapus</span>`;
+        ul.appendChild(li);
       });
     }
-
-    function editPeserta(index) {
-      const p = peserta[index];
-      const namaBaru = prompt("Edit nama:", p.nama);
-      const nomorBaru = prompt("Edit nomor:", p.nomor);
-      if (namaBaru && nomorBaru) {
-        p.nama = namaBaru.trim();
-        p.nomor = nomorBaru.trim();
-        simpanData();
-        renderPeserta();
-      }
+    function editPeserta(i) {
+      const p = peserta[i],
+        nn = prompt("Edit nama:", p.nama),
+        no = prompt("Edit nomor:", p.nomor);
+      if (nn && no) { p.nama = nn.trim(); p.nomor = no.trim(); simpanData(); renderPeserta(); }
     }
-
-    function hapusPeserta(index) {
+    function hapusPeserta(i) {
       if (!confirm("Hapus peserta ini?")) return;
-      peserta.splice(index, 1);
-      simpanData();
-      renderPeserta();
+      peserta.splice(i, 1); simpanData(); renderPeserta();
     }
 
+    // Init
     renderTabel();
     renderPeserta();
   </script>
