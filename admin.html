@@ -502,24 +502,29 @@
         const rekap = { Hadir: 0, Izin: 0, Sakit: 0, Bolos: 0 };
 
         let no = 1;
-        for (let key in data) {
-          const a = data[key];
-          if (!a.nama.toLowerCase().includes(cari)) continue;
-          rekap[a.alasan]++;
-          const statusClass = a.status === "Terlambat" ? "status-terlambat" : "status-tepat";
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-              <td>${no++}</td>
-              <td>${a.nama}</td>
-              <td>${a.nomor}</td>
-              <td>${a.waktuMasuk ? new Date(a.waktuMasuk).toLocaleString("id-ID") : "-"}</td>
-              <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
-              <td class="${statusClass}">${a.status || "-"}</td>
-              <td>${a.alasan}</td>
-              <td><span class="btn-hapus" onclick="hapusAbsensi('${key}')">Hapus</span></td>
-            `;
-          tbody.appendChild(tr);
-        }
+        for (let tanggal in data) {
+  const perTanggal = data[tanggal];
+  for (let nomor in perTanggal) {
+    const a = perTanggal[nomor];
+    if (!a.nama.toLowerCase().includes(cari)) continue;
+
+    rekap[a.alasan]++;
+    const statusClass = a.status === "Terlambat" ? "status-terlambat" : "status-tepat";
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${no++}</td>
+      <td>${a.nama}</td>
+      <td>${a.nomor}</td>
+      <td>${a.waktuMasuk ? new Date(a.waktuMasuk).toLocaleString("id-ID") : "-"}</td>
+      <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
+      <td class="${statusClass}">${a.status || "-"}</td>
+      <td>${a.alasan}</td>
+      <td><span class="btn-hapus" onclick="hapusAbsensi('${tanggal}', '${nomor}')">Hapus</span></td>
+    `;
+    tbody.appendChild(tr);
+  }
+}
+
 
 
         document.getElementById("rekapInfo").textContent =
@@ -527,11 +532,11 @@
       });
     }
 
-    window.hapusAbsensi = async (key) => {
-      if (confirm("Hapus data absensi ini?")) {
-        await remove(ref(db, 'absensi/' + key));
-      }
-    };
+    window.hapusAbsensi = async (tanggal, nomor) => {
+  if (confirm("Hapus data absensi ini?")) {
+    await remove(ref(db, `absensi/${tanggal}/${nomor}`));
+  }
+};
 
     // Export CSV
     window.exportCSV = async () => {
