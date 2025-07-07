@@ -5,68 +5,99 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Absensi - Pilih Peran</title>
   <style>
+    /* RESET */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+
+    /* BODY */
     body {
       font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 0;
+      background: linear-gradient(135deg, #e0f7fa, #e8f5e9);
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      background: #f4f7f8;
       text-align: center;
+      padding: 20px;
     }
 
     h1 {
-      margin-bottom: 30px;
       color: #2c3e50;
-      font-size: 24px;
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      text-shadow: 1px 1px rgba(0,0,0,0.1);
     }
 
+    /* CONTAINER */
     .button-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 24px;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    /* CARD BUTTON */
+    .role-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: transform .2s ease, box-shadow .2s ease;
       display: flex;
       flex-direction: column;
-      gap: 20px;
-      width: 80%;
-      max-width: 300px;
+      align-items: center;
+      text-decoration: none;
+      color: inherit;
+    }
+    .role-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
     }
 
-    button {
-      padding: 14px;
-      font-size: 16px;
+    /* ICON */
+    .role-card svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 1rem;
+      fill: #4CAF50;
+    }
+
+    /* LABEL */
+    .role-card span {
+      font-size: 1.1rem;
       font-weight: bold;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background-color: #4CAF50;
-      color: white;
-      transition: background 0.2s ease;
-    }
-
-    button:hover {
-      background-color: #388E3C;
+      margin-top: 0.5rem;
     }
 
     @media (max-width: 500px) {
-      h1 {
-        font-size: 20px;
-        margin-bottom: 24px;
-      }
-
-      button {
-        font-size: 15px;
-        padding: 12px;
-      }
+      h1 { font-size: 1.5rem; }
+      .role-card { padding: 1rem; }
+      .role-card svg { width: 40px; height: 40px; }
     }
   </style>
 </head>
 <body>
   <h1>Silakan Pilih Peran Anda</h1>
-
   <div class="button-container">
-    <button onclick="location.href='user.html'">Masuk sebagai Peserta</button>
-    <button onclick="location.href='admin.html'">Masuk sebagai Admin</button>
+    <!-- Peserta Card -->
+    <a href="user.html" class="role-card">
+      <!-- Simple User Icon -->
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+      </svg>
+      <span>Masuk sebagai Peserta</span>
+    </a>
+
+    <!-- Admin Card -->
+    <a href="admin.html" class="role-card">
+      <!-- Simple Admin/Shield Icon -->
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 1l8 4v6c0 5-3.7 9.8-8 10-4.3-.2-8-5-8-10V5l8-4zM12 3.1L5 6v5c0 4.4 3 8.3 7 8.9 4-.6 7-4.5 7-8.9V6l-7-2.9z"/>
+      </svg>
+      <span>Masuk sebagai Admin</span>
+    </a>
   </div>
 </body>
 </html>
