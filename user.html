@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Absensi Peserta</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            max-width: 100%;
+            overflow-x: hidden;
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f7f8;
+            color: #333;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        body {
+            padding: 16px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin: 16px 0;
+            font-size: 22px;
+        }
+
+        .wrap-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .form-kiri,
+        .daftar-kanan {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 360px;
+        }
+
+        input,
+        select,
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 15px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #388E3C;
+        }
+
+        .status {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        .preview-foto {
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .preview-foto img {
+            display: block;
+            margin: 0 auto 6px auto;
+            width: 80px;
+            border-radius: 6px;
+        }
+
+
+        ul#daftarPeserta {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+            max-height: 200px;
+            /* Batasi tinggi maksimal */
+            overflow-y: auto;
+            /* Scroll vertikal aktif jika lebih */
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: #fff;
+        }
+
+
+        ul#daftarPeserta li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+            font-size: 15px;
+        }
+
+        .daftar-kanan h3 {
+            text-align: center;
+            font-size: 17px;
+            margin: 0 0 10px;
+        }
+
+        .rekap {
+            margin: 10px 0;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            background: white;
+            border-collapse: collapse;
+            margin-top: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .tabel-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #eee;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .status-tepat {
+            color: green;
+            font-weight: bold;
+        }
+
+        .status-terlambat {
+            color: red;
+            font-weight: bold;
+        }
+
+        .btn-hapus {
+            color: red;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-hapus:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 760px) {
+            .wrap-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .form-kiri,
+            .daftar-kanan {
+                max-width: 100%;
+                padding: 12px;
+            }
+
+            input,
+            select,
+            button {
+                font-size: 14px;
+                padding: 9px;
+            }
+
+            .status {
+                font-size: 13px;
+            }
+
+            .preview-foto img {
+                width: 70px;
+            }
+
+            ul#daftarPeserta li {
+                font-size: 14px;
+                padding: 6px 0;
+            }
+        }
+
+        @media (max-width: 500px) {
+            body {
+                padding: 10px;
+            }
+
+            h2 {
+                font-size: 18px;
+            }
+
+            .daftar-kanan h3 {
+                font-size: 15px;
+            }
+
+            input,
+            select,
+            button {
+                font-size: 13px;
+                padding: 7px;
+            }
+
+            .preview-foto img {
+                width: 60px;
+            }
+
+            ul#daftarPeserta li {
+                font-size: 13px;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+    <h2>Form Absensi Peserta</h2>
+
+    <div class="wrap-container">
+        <!-- Form KIRI -->
+        <div class="form-kiri">
+            <form id="formAbsen">
+                <input type="text" id="nomorInput" placeholder="Masukkan Nomor Anda" required />
+                <select id="alasanInput">
+                    <option value="Hadir">Hadir</option>
+                    <option value="Sakit">Sakit</option>
+                    <option value="Izin">Izin</option>
+                    <option value="Bolos">Bolos</option>
+                </select>
+
+                <!-- Preview Foto -->
+                <div id="previewPeserta" class="preview-foto"></div>
+
+                <button type="button" onclick="absen('masuk')">Absen Masuk</button>
+                <button type="button" onclick="absen('pulang')">Absen Pulang</button>
+                <div class="status" id="statusPesan"></div>
+            </form>
+        </div>
+
+        <!-- Daftar Kode Peserta KANAN -->
+        <div class="daftar-kanan">
+            <h3>Daftar Peserta</h3>
+            <ul id="daftarPeserta"></ul>
+        </div>
+    </div>
+
+    <h2>Data Absensi</h2>
+    <input type="text" id="cariInput" placeholder="Cari nama..." oninput="renderTabel()" />
+    <div class="tabel-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nama</th>
+                    <th>Nomor</th>
+                    <th>Masuk</th>
+                    <th>Pulang</th>
+                    <th>Status</th>
+                    <th>Alasan</th>
+                </tr>
+            </thead>
+            <tbody id="absenBody"></tbody>
+        </table>
+    </div>
+
+
+    <script>
+        const pesertaKey = "pesertaList";
+        const absenKey = "absensiList";
+        const peserta = JSON.parse(localStorage.getItem(pesertaKey)) || [];
+        const absensi = JSON.parse(localStorage.getItem(absenKey)) || [];
+
+        function simpanData() {
+            localStorage.setItem(absenKey, JSON.stringify(absensi));
+        }
+
+        function getStatusMasuk(waktuISO) {
+            const waktu = new Date(waktuISO);
+            const batas = new Date(waktu);
+            batas.setHours(8, 0, 0, 0);
+            return waktu > batas ? "Terlambat" : "Tepat Waktu";
+        }
+
+        function absen(tipe) {
+            const nomor = nomorInput.value.trim();
+            const alasan = alasanInput.value;
+            const orang = peserta.find(p => p.nomor === nomor);
+            const statusPesan = document.getElementById("statusPesan");
+            const preview = document.getElementById("previewPeserta");
+
+            if (!orang) {
+                statusPesan.textContent = "❌ Nomor tidak ditemukan!";
+                statusPesan.style.color = "red";
+                preview.innerHTML = "";
+                setTimeout(() => statusPesan.textContent = "", 3000);
+                return;
+            }
+
+            // Tampilkan foto & nama
+            preview.innerHTML = orang.foto
+                ? `<img src="${orang.foto}" alt="Foto" />
+           <div><strong>${orang.nama}</strong></div>`
+                : `<div><strong>${orang.nama}</strong></div>`;
+
+            // Hilangkan foto setelah 5 detik
+            setTimeout(() => {
+                preview.innerHTML = "";
+            }, 3000);
+
+            const now = new Date().toISOString();
+            const hariIni = now.slice(0, 10);
+            let dataHariIni = absensi.find(a => a.nomor === nomor && a.waktuMasuk?.slice(0, 10) === hariIni);
+
+            if (tipe === "masuk") {
+                if (dataHariIni) {
+                    statusPesan.textContent = "❌ Sudah absen masuk hari ini!";
+                    statusPesan.style.color = "red";
+                    setTimeout(() => statusPesan.textContent = "", 3000);
+                    return;
+                }
+
+                absensi.push({
+                    nama: orang.nama,
+                    nomor: orang.nomor,
+                    waktuMasuk: now,
+                    waktuPulang: "",
+                    alasan,
+                    status: getStatusMasuk(now)
+                });
+
+                statusPesan.textContent = "✅ Absen masuk berhasil.";
+                statusPesan.style.color = "green";
+            } else if (tipe === "pulang") {
+                if (!dataHariIni) {
+                    statusPesan.textContent = "❌ Belum absen masuk hari ini!";
+                    statusPesan.style.color = "red";
+                    setTimeout(() => statusPesan.textContent = "", 3000);
+                    return;
+                }
+
+                if (dataHariIni.waktuPulang) {
+                    statusPesan.textContent = "❌ Sudah absen pulang hari ini!";
+                    statusPesan.style.color = "red";
+                    setTimeout(() => statusPesan.textContent = "", 3000);
+                    return;
+                }
+
+                dataHariIni.waktuPulang = now;
+                statusPesan.textContent = "✅ Absen pulang berhasil.";
+                statusPesan.style.color = "green";
+            }
+
+            // Hilangkan status pesan setelah 3 detik
+            setTimeout(() => {
+                statusPesan.textContent = "";
+            }, 3000);
+
+            simpanData();
+            formAbsen.reset();
+            renderTabel();
+
+        }
+
+        function renderTabel() {
+            const tbody = document.getElementById("absenBody");
+            const cari = document.getElementById("cariInput").value.toLowerCase();
+            tbody.innerHTML = "";
+
+            const filtered = absensi.filter(a => a.nama.toLowerCase().includes(cari));
+            const rekap = { Hadir: 0, Izin: 0, Sakit: 0, Bolos: 0 };
+
+            filtered.forEach((a, index) => {
+                rekap[a.alasan]++;
+                const statusClass = a.status === "Terlambat" ? "status-terlambat" : "status-tepat";
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+          <td>${a.nama}</td>
+          <td>${a.nomor}</td>
+          <td>${a.waktuMasuk ? new Date(a.waktuMasuk).toLocaleString("id-ID") : "-"}</td>
+          <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
+          <td class="${statusClass}">${a.status || "-"}</td>
+          <td>${a.alasan}</td>
+        `;
+                tbody.appendChild(tr);
+            });
+
+        }
+
+        function renderPeserta() {
+            const list = document.getElementById("daftarPeserta");
+            list.innerHTML = "";
+
+            peserta.forEach(p => {
+                const li = document.createElement("li");
+                li.textContent = `${p.nama} (${p.nomor})`;
+                list.appendChild(li);
+            });
+        }
+
+
+
+        renderTabel()
+        renderPeserta();
+
+    </script>
+</body>
+
+</html>
