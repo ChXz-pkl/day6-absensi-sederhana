@@ -47,6 +47,56 @@
             border-radius: 2px;
         }
 
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding: 0 12px;
+        }
+
+        .header-container .left,
+        .header-container .right {
+            width: 100px;
+            text-align: center;
+        }
+
+        .header-container .center {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-container h2 {
+            margin: 0;
+            font-size: 1.75rem;
+            color: #2c3e50;
+            position: relative;
+        }
+
+        .kembali-btn {
+            background: none;
+            border: none;
+            color: black;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .jam {
+            position: absolute;
+            top: 35px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            color: #2c3e50;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+
+
+
         /* ===== FORM & PREVIEW ===== */
         .wrap-container {
             display: flex;
@@ -74,7 +124,7 @@
             font-size: 1rem;
             border: 1px solid #ccc;
             border-radius: 6px;
-            transition: border-color 0.2s;
+            transition: border-color .2s;
         }
 
         input:focus,
@@ -89,21 +139,13 @@
             font-weight: bold;
             border: none;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background .2s;
         }
 
         button:hover {
             background: #388e3c;
         }
 
-        .status {
-            text-align: center;
-            margin-top: 12px;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        /* Preview Foto */
         .preview-foto {
             text-align: center;
             margin: 16px 0;
@@ -119,11 +161,18 @@
             border: 2px solid #4caf50;
         }
 
+        .status {
+            text-align: center;
+            margin-top: 12px;
+            font-weight: bold;
+            font-size: .9rem;
+        }
+
         /* ===== DAFTAR PESERTA ===== */
         .daftar-kanan h3 {
-            margin-bottom: 12px;
             font-size: 1.1rem;
             text-align: center;
+            margin-bottom: 12px;
         }
 
         ul#daftarPeserta {
@@ -140,7 +189,7 @@
         ul#daftarPeserta li {
             padding: 10px;
             border-bottom: 1px solid #eee;
-            font-size: 0.95rem;
+            font-size: .95rem;
             color: #555;
         }
 
@@ -153,13 +202,6 @@
             display: block;
             margin: 16px auto;
             max-width: 360px;
-        }
-
-        .rekap {
-            text-align: center;
-            margin: 12px 0;
-            font-weight: bold;
-            font-size: 0.9rem;
         }
 
         .tabel-container {
@@ -180,7 +222,7 @@
             background: #4caf50;
             color: #fff;
             padding: 12px;
-            font-size: 0.95rem;
+            font-size: .95rem;
             text-align: left;
         }
 
@@ -194,17 +236,17 @@
 
         td {
             padding: 10px;
-            font-size: 0.9rem;
+            font-size: .9rem;
             border-bottom: 1px solid #eee;
         }
 
-        /* Status badge */
+        /* status badge */
         .status-tepat,
         .status-terlambat {
             display: inline-block;
             padding: 4px 8px;
             border-radius: 12px;
-            font-size: 0.85rem;
+            font-size: .85rem;
             font-weight: bold;
         }
 
@@ -219,7 +261,12 @@
         }
 
         /* ===== RESPONSIVE ===== */
-        @media (max-width: 760px) {
+        /* ============================= */
+        /* ======== RESPONSIVE ========= */
+        /* ============================= */
+
+        /* Tablet dan ke bawah (max-width: 768px) */
+        @media (max-width: 768px) {
             .wrap-container {
                 flex-direction: column;
                 align-items: center;
@@ -248,17 +295,48 @@
                 padding: 8px;
             }
 
-            thead th,
-            td {
+            table thead th,
+            table td {
                 padding: 8px;
                 font-size: 0.85rem;
             }
+
+            .status {
+                font-size: 0.9rem;
+            }
         }
 
+        /* HP kecil (max-width: 480px) */
         @media (max-width: 480px) {
             h2 {
-                font-size: 1.5rem;
+                font-size: 1.4rem;
                 margin: 12px 0;
+            }
+
+            .header-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .header-container .left,
+            .header-container .right {
+                width: 100%;
+                text-align: center;
+            }
+
+            .kembali-btn {
+                font-size: 0.95rem;
+                padding: 4px 10px;
+            }
+
+            .jam {
+                font-size: 0.9rem;
+                padding: 4px 12px;
+                position: relative;
+                top: 0;
+                box-shadow: none;
+                background: none;
             }
 
             button,
@@ -277,24 +355,65 @@
                 max-height: 180px;
             }
 
-            thead th,
-            td {
+            table thead th,
+            table td {
                 padding: 6px;
                 font-size: 0.8rem;
             }
+
+            .status {
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Layar besar (min-width: 1024px) */
+        @media (min-width: 1024px) {
+
+            .form-kiri,
+            .daftar-kanan {
+                max-width: 400px;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            .jam {
+                font-size: 1rem;
+            }
+
+            .kembali-btn {
+                font-size: 1rem;
+            }
+
+            table thead th,
+            table td {
+                font-size: 1rem;
+            }
         }
     </style>
-
 </head>
 
 <body>
-    <h2>Form Absensi Peserta</h2>
+
+    <div class="header-container">
+        <div class="left">
+            <button class="kembali-btn" onclick="location.href='index.html'">← Kembali</button>
+        </div>
+        <div class="center">
+            <h2>Form Absensi Peserta</h2>
+        </div>
+        <div class="right">
+            <div class="jam" id="jamSekarang">--:--:--</div>
+        </div>
+    </div>
+
+
 
     <div class="wrap-container">
-        <!-- Form KIRI -->
         <div class="form-kiri">
             <form id="formAbsen">
-                <input type="text" id="nomorInput" placeholder="Masukkan Nomor Anda" required />
+                <input type="text" id="nomorInput" placeholder="Masukkan Nomor Anda" required>
                 <select id="alasanInput">
                     <option value="Hadir">Hadir</option>
                     <option value="Sakit">Sakit</option>
@@ -302,16 +421,14 @@
                     <option value="Bolos">Bolos</option>
                 </select>
 
-                <!-- Preview Foto -->
                 <div id="previewPeserta" class="preview-foto"></div>
 
-                <button type="button" onclick="absen('masuk')">Absen Masuk</button>
-                <button type="button" onclick="absen('pulang')">Absen Pulang</button>
+                <button type="button" id="btnMasuk">Absen Masuk</button>
+                <button type="button" id="btnPulang">Absen Pulang</button>
                 <div class="status" id="statusPesan"></div>
             </form>
         </div>
 
-        <!-- Daftar Kode Peserta KANAN -->
         <div class="daftar-kanan">
             <h3>Daftar Peserta</h3>
             <ul id="daftarPeserta"></ul>
@@ -319,11 +436,13 @@
     </div>
 
     <h2>Data Absensi</h2>
-    <input type="text" id="cariInput" placeholder="Cari nama..." oninput="renderTabel()" />
+    <input type="text" id="cariInput" placeholder="Cari nama..." oninput="renderTabel()">
+
     <div class="tabel-container">
         <table>
             <thead>
                 <tr>
+                    <th>No</th>
                     <th>Nama</th>
                     <th>Nomor</th>
                     <th>Masuk</th>
@@ -336,145 +455,144 @@
         </table>
     </div>
 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+        import {
+            getDatabase, ref, set, update, get, child, onValue
+        } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
-    <script>
-        const pesertaKey = "pesertaList";
-        const absenKey = "absensiList";
-        const peserta = JSON.parse(localStorage.getItem(pesertaKey)) || [];
-        const absensi = JSON.parse(localStorage.getItem(absenKey)) || [];
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDOmBwvur0gJVvyzqLff-e_YjFpkyYvOCM",
+            authDomain: "absensi-chx.firebaseapp.com",
+            databaseURL: "https://absensi-chx-default-rtdb.firebaseio.com",
+            projectId: "absensi-chx",
+            storageBucket: "absensi-chx.appspot.com",
+            messagingSenderId: "891248981960",
+            appId: "1:891248981960:web:c0060ff1de18e61608b2fd"
+        };
 
-        function simpanData() {
-            localStorage.setItem(absenKey, JSON.stringify(absensi));
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const pesertaRef = ref(db, 'peserta');
+        const absensiRef = ref(db, 'absensi');
+
+        // Load daftar peserta
+        async function loadPeserta() {
+            const snap = await get(pesertaRef);
+            const list = document.getElementById("daftarPeserta");
+            list.innerHTML = "";
+            if (snap.exists()) {
+                Object.entries(snap.val()).forEach(([nomor, p]) => {
+                    const li = document.createElement("li");
+                    li.textContent = `${p.nama} (${nomor})`;
+                    list.appendChild(li);
+                });
+            }
         }
 
-        function getStatusMasuk(waktuISO) {
-            const waktu = new Date(waktuISO);
-            const batas = new Date(waktu);
-            batas.setHours(8, 0, 0, 0);
-            return waktu > batas ? "Terlambat" : "Tepat Waktu";
-        }
-
-        function absen(tipe) {
-            const nomor = nomorInput.value.trim();
-            const alasan = alasanInput.value;
-            const orang = peserta.find(p => p.nomor === nomor);
+        // Absen masuk/pulang
+        async function absen(tipe) {
+            const nomor = document.getElementById("nomorInput").value.trim();
+            const alasan = document.getElementById("alasanInput").value;
             const statusPesan = document.getElementById("statusPesan");
             const preview = document.getElementById("previewPeserta");
 
-            if (!orang) {
-                statusPesan.textContent = "❌ Nomor tidak ditemukan!";
-                statusPesan.style.color = "red";
-                preview.innerHTML = "";
+            // cek peserta
+            const pesertaSnap = await get(child(ref(db), `peserta/${nomor}`));
+            if (!pesertaSnap.exists()) {
+                statusPesan.textContent = "❌ Nomor tidak ditemukan!"; statusPesan.style.color = "red";
                 setTimeout(() => statusPesan.textContent = "", 3000);
                 return;
             }
+            const p = pesertaSnap.val();
+            preview.innerHTML = p.foto
+                ? `<img src="${p.foto}"/><div><strong>${p.nama}</strong></div>`
+                : `<div><strong>${p.nama}</strong></div>`;
+            setTimeout(() => preview.innerHTML = "", 5000);
 
-            // Tampilkan foto & nama
-            preview.innerHTML = orang.foto
-                ? `<img src="${orang.foto}" alt="Foto" />
-           <div><strong>${orang.nama}</strong></div>`
-                : `<div><strong>${orang.nama}</strong></div>`;
-
-            // Hilangkan foto setelah 5 detik
-            setTimeout(() => {
-                preview.innerHTML = "";
-            }, 3000);
-
+            // path absensi hari ini
             const now = new Date().toISOString();
-            const hariIni = now.slice(0, 10);
-            let dataHariIni = absensi.find(a => a.nomor === nomor && a.waktuMasuk?.slice(0, 10) === hariIni);
+            const tanggal = now.slice(0, 10);
+            const todayRef = ref(db, `absensi/${tanggal}/${nomor}`);
+            const todaySnap = await get(todayRef);
 
             if (tipe === "masuk") {
-                if (dataHariIni) {
-                    statusPesan.textContent = "❌ Sudah absen masuk hari ini!";
-                    statusPesan.style.color = "red";
-                    setTimeout(() => statusPesan.textContent = "", 3000);
-                    return;
+                if (todaySnap.exists()) {
+                    statusPesan.textContent = "❌ Sudah absen masuk!"; statusPesan.style.color = "red";
+                    setTimeout(() => statusPesan.textContent = "", 3000); return;
                 }
-
-                absensi.push({
-                    nama: orang.nama,
-                    nomor: orang.nomor,
-                    waktuMasuk: now,
-                    waktuPulang: "",
-                    alasan,
-                    status: getStatusMasuk(now)
+                const masuk = new Date(now), batas = new Date(masuk); batas.setHours(8, 0, 0, 0);
+                const status = masuk > batas ? "Terlambat" : "Tepat Waktu";
+                await set(todayRef, {
+                    nama: p.nama, nomor, waktuMasuk: now,
+                    waktuPulang: "", alasan, status
                 });
-
-                statusPesan.textContent = "✅ Absen masuk berhasil.";
-                statusPesan.style.color = "green";
-            } else if (tipe === "pulang") {
-                if (!dataHariIni) {
-                    statusPesan.textContent = "❌ Belum absen masuk hari ini!";
-                    statusPesan.style.color = "red";
-                    setTimeout(() => statusPesan.textContent = "", 3000);
-                    return;
+                statusPesan.textContent = "✅ Absen masuk berhasil."; statusPesan.style.color = "green";
+            } else {
+                if (!todaySnap.exists()) {
+                    statusPesan.textContent = "❌ Belum absen masuk!"; statusPesan.style.color = "red";
+                    setTimeout(() => statusPesan.textContent = "", 3000); return;
                 }
-
-                if (dataHariIni.waktuPulang) {
-                    statusPesan.textContent = "❌ Sudah absen pulang hari ini!";
-                    statusPesan.style.color = "red";
-                    setTimeout(() => statusPesan.textContent = "", 3000);
-                    return;
+                const data = todaySnap.val();
+                if (data.waktuPulang) {
+                    statusPesan.textContent = "❌ Sudah absen pulang!"; statusPesan.style.color = "red";
+                    setTimeout(() => statusPesan.textContent = "", 3000); return;
                 }
-
-                dataHariIni.waktuPulang = now;
-                statusPesan.textContent = "✅ Absen pulang berhasil.";
-                statusPesan.style.color = "green";
+                await update(todayRef, { waktuPulang: now });
+                statusPesan.textContent = "✅ Absen pulang berhasil."; statusPesan.style.color = "green";
             }
-
-            // Hilangkan status pesan setelah 3 detik
-            setTimeout(() => {
-                statusPesan.textContent = "";
-            }, 3000);
-
-            simpanData();
-            formAbsen.reset();
+            document.getElementById("formAbsen").reset();
             renderTabel();
-
         }
 
-        function renderTabel() {
+        // Render tabel absensi
+        async function renderTabel() {
             const tbody = document.getElementById("absenBody");
-            const cari = document.getElementById("cariInput").value.toLowerCase();
+            const q = document.getElementById("cariInput").value.toLowerCase();
             tbody.innerHTML = "";
-
-            const filtered = absensi.filter(a => a.nama.toLowerCase().includes(cari));
-            const rekap = { Hadir: 0, Izin: 0, Sakit: 0, Bolos: 0 };
-
-            filtered.forEach((a, index) => {
-                rekap[a.alasan]++;
-                const statusClass = a.status === "Terlambat" ? "status-terlambat" : "status-tepat";
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-          <td>${a.nama}</td>
-          <td>${a.nomor}</td>
-          <td>${a.waktuMasuk ? new Date(a.waktuMasuk).toLocaleString("id-ID") : "-"}</td>
-          <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
-          <td class="${statusClass}">${a.status || "-"}</td>
-          <td>${a.alasan}</td>
-        `;
-                tbody.appendChild(tr);
-            });
-
-        }
-
-        function renderPeserta() {
-            const list = document.getElementById("daftarPeserta");
-            list.innerHTML = "";
-
-            peserta.forEach(p => {
-                const li = document.createElement("li");
-                li.textContent = `${p.nama} (${p.nomor})`;
-                list.appendChild(li);
+            const snap = await get(absensiRef);
+            if (!snap.exists()) return;
+            let no = 1;
+            Object.entries(snap.val()).forEach(([tgl, group]) => {
+                Object.entries(group).forEach(([nomor, a]) => {
+                    if (!a.nama.toLowerCase().includes(q)) return;
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+            <td>${no++}</td>
+            <td>${a.nama}</td>
+            <td>${a.nomor}</td>
+            <td>${a.waktuMasuk ? new Date(a.waktuMasuk).toLocaleString("id-ID") : "-"}</td>
+            <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
+            <td class="${a.status === 'Terlambat' ? 'status-terlambat' : 'status-tepat'}">${a.status || "-"}</td>
+            <td>${a.alasan}</td>
+          `;
+                    tbody.appendChild(tr);
+                });
             });
         }
 
+        function updateJam() {
+            const now = new Date();
+            const jam = now.toLocaleTimeString("id-ID", { hour12: false });
+            document.getElementById("jamSekarang").textContent = jam;
+        }
+        setInterval(updateJam, 1000);
+        updateJam();
 
 
-        renderTabel()
-        renderPeserta();
+        // expose to global
+        window.absen = absen;
+        window.renderTabel = renderTabel;
 
+        // init
+        loadPeserta();
+        renderTabel();
+
+        // attach events (optional instead of onclick)
+        document.getElementById("btnMasuk").onclick = () => absen('masuk');
+        document.getElementById("btnPulang").onclick = () => absen('pulang');
     </script>
 </body>
 
