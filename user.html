@@ -460,7 +460,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
         import {
-            getDatabase, ref, set, update, get, child, onValue
+            getDatabase, ref, set, update, get, child
         } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
         // Firebase config
@@ -494,60 +494,89 @@
             }
         }
 
-        // Absen masuk/pulang
+        // Absen hanya pulang
         async function absen(tipe) {
             const nomor = document.getElementById("nomorInput").value.trim();
             const alasan = document.getElementById("alasanInput").value;
             const statusPesan = document.getElementById("statusPesan");
             const preview = document.getElementById("previewPeserta");
 
-            // cek peserta
             const pesertaSnap = await get(child(ref(db), `peserta/${nomor}`));
             if (!pesertaSnap.exists()) {
-                statusPesan.textContent = "❌ Nomor tidak ditemukan!"; statusPesan.style.color = "red";
+                statusPesan.textContent = "❌ Nomor tidak ditemukan!";
+                statusPesan.style.color = "red";
                 setTimeout(() => statusPesan.textContent = "", 3000);
                 return;
             }
+
             const p = pesertaSnap.val();
             preview.innerHTML = p.foto
                 ? `<img src="${p.foto}"/><div><strong>${p.nama}</strong></div>`
                 : `<div><strong>${p.nama}</strong></div>`;
             setTimeout(() => preview.innerHTML = "", 5000);
 
-            // path absensi hari ini
             const now = new Date().toISOString();
             const tanggal = now.slice(0, 10);
             const todayRef = ref(db, `absensi/${tanggal}/${nomor}`);
             const todaySnap = await get(todayRef);
+            const batasTerlambat = localStorage.getItem("jamBatas") || "08:00";
 
+
+            // ===== ABSEN MASUK =====
             if (tipe === "masuk") {
-                if (todaySnap.exists()) {
-                    statusPesan.textContent = "❌ Sudah absen masuk!"; statusPesan.style.color = "red";
-                    setTimeout(() => statusPesan.textContent = "", 3000); return;
+                if (todaySnap.exists() && todaySnap.val().waktuMasuk) {
+                    statusPesan.textContent = "❌ Sudah absen masuk!";
+                    statusPesan.style.color = "red";
+                    return;
                 }
-                const masuk = new Date(now), batas = new Date(masuk); batas.setHours(8, 0, 0, 0);
-                const status = masuk > batas ? "Terlambat" : "Tepat Waktu";
+
+                const waktuSekarang = now.split("T")[1].slice(0, 5); // jam:menit
+                const status = waktuSekarang > batasTerlambat ? "Terlambat" : "Tepat Waktu";
+
                 await set(todayRef, {
-                    nama: p.nama, nomor, waktuMasuk: now,
-                    waktuPulang: "", alasan, status
+                    nama: p.nama,
+                    nomor,
+                    waktuMasuk: now,
+                    waktuPulang: "",
+                    alasan,
+                    status
                 });
-                statusPesan.textContent = "✅ Absen masuk berhasil."; statusPesan.style.color = "green";
-            } else {
-                if (!todaySnap.exists()) {
-                    statusPesan.textContent = "❌ Belum absen masuk!"; statusPesan.style.color = "red";
-                    setTimeout(() => statusPesan.textContent = "", 3000); return;
-                }
-                const data = todaySnap.val();
-                if (data.waktuPulang) {
-                    statusPesan.textContent = "❌ Sudah absen pulang!"; statusPesan.style.color = "red";
-                    setTimeout(() => statusPesan.textContent = "", 3000); return;
-                }
-                await update(todayRef, { waktuPulang: now });
-                statusPesan.textContent = "✅ Absen pulang berhasil."; statusPesan.style.color = "green";
+
+                statusPesan.textContent = "✅ Absen masuk berhasil.";
+                statusPesan.style.color = "green";
             }
+
+            // ===== ABSEN PULANG =====
+            else if (tipe === "pulang") {
+                if (!todaySnap.exists()) {
+                    await set(todayRef, {
+                        nama: p.nama,
+                        nomor,
+                        waktuMasuk: "",
+                        waktuPulang: now,
+                        alasan,
+                        status: "Langsung Pulang"
+                    });
+                    statusPesan.textContent = "⚠️ Absen masuk kosong. Pulang dicatat.";
+                    statusPesan.style.color = "orange";
+                } else {
+                    const data = todaySnap.val();
+                    if (data.waktuPulang) {
+                        statusPesan.textContent = "❌ Sudah absen pulang!";
+                        statusPesan.style.color = "red";
+                        return;
+                    }
+
+                    await update(todayRef, { waktuPulang: now });
+                    statusPesan.textContent = "✅ Absen pulang berhasil.";
+                    statusPesan.style.color = "green";
+                }
+            }
+
             document.getElementById("formAbsen").reset();
             renderTabel();
         }
+
 
         // Render tabel absensi
         async function renderTabel() {
@@ -556,20 +585,21 @@
             tbody.innerHTML = "";
             const snap = await get(absensiRef);
             if (!snap.exists()) return;
+
             let no = 1;
             Object.entries(snap.val()).forEach(([tgl, group]) => {
                 Object.entries(group).forEach(([nomor, a]) => {
                     if (!a.nama.toLowerCase().includes(q)) return;
                     const tr = document.createElement("tr");
                     tr.innerHTML = `
-            <td>${no++}</td>
-            <td>${a.nama}</td>
-            <td>${a.nomor}</td>
-            <td>${a.waktuMasuk ? new Date(a.waktuMasuk).toLocaleString("id-ID") : "-"}</td>
-            <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
-            <td class="${a.status === 'Terlambat' ? 'status-terlambat' : 'status-tepat'}">${a.status || "-"}</td>
-            <td>${a.alasan}</td>
-          `;
+          <td>${no++}</td>
+          <td>${a.nama}</td>
+          <td>${a.nomor}</td>
+          <td>${a.waktuMasuk ? new Date(a.waktuMasuk).toLocaleString("id-ID") : "-"}</td>
+          <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
+          <td class="${a.status === 'Terlambat' ? 'status-terlambat' : 'status-tepat'}">${a.status || "-"}</td>
+          <td>${a.alasan}</td>
+        `;
                     tbody.appendChild(tr);
                 });
             });
@@ -583,19 +613,18 @@
         setInterval(updateJam, 1000);
         updateJam();
 
-
-        // expose to global
+        // Global access
         window.absen = absen;
         window.renderTabel = renderTabel;
 
-        // init
+        // Init
         loadPeserta();
         renderTabel();
 
-        // attach events (optional instead of onclick)
         document.getElementById("btnMasuk").onclick = () => absen('masuk');
         document.getElementById("btnPulang").onclick = () => absen('pulang');
     </script>
+
 </body>
 
 </html>

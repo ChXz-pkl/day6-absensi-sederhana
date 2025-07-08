@@ -90,6 +90,31 @@
       background: #1976D2;
     }
 
+    input[type="file"] {
+      border: 2px dashed #ccc;
+      background-color: #fafafa;
+      color: #555;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    input[type="file"]::file-selector-button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      margin-right: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+
+    input[type="file"]::file-selector-button:hover {
+      background: #388e3c;
+    }
+
+
     /* REKAP & FILTER */
     .filter {
       margin-bottom: 12px;
@@ -105,7 +130,7 @@
     }
 
     .rekap {
-      text-align: right;
+      text-align: left;
       font-weight: bold;
       margin-bottom: 12px;
     }
@@ -270,6 +295,29 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 
+    button {
+      margin-top: 2px;
+      background: #4CAF50;
+      color: white;
+      font-weight: bold;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+      margin-right: 10px;
+    }
+
+    button:hover {
+      background: #388e3c;
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+
     /* RESPONSIVE */
     @media (max-width:768px) {
       .container {
@@ -342,23 +390,13 @@
 <body>
   <div class="container">
     <!-- Tambahkan ini di bawah judul -->
-    <div style="text-align: center; margin-bottom: 16px;">
-      <button onclick="location.href='index.html'" style="
-    background: #2196F3;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.2s;
-  " onmouseover="this.style.background='#1976D2'" onmouseout="this.style.background='#2196F3'">
-        ← Kembali
-      </button>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <button onclick="keluar()"
+        style="background:#f44336;color:white;border:none;padding:8px 12px; border-radius:6px; cursor:pointer">Keluar</button>
+      <div id="jamSekarang" class="jam-atas"></div>
     </div>
 
     <h2>Tambah Peserta</h2>
-    <div id="jamSekarang" class="jam-atas"></div>
     <form id="formTambah">
       <input type="text" id="namaBaru" placeholder="Nama" required />
       <input type="text" id="nomorBaru" placeholder="Nomor Unik" required />
@@ -368,7 +406,8 @@
 
     <h2>Data Absensi</h2>
     <div class="filter">
-      <input type="text" id="cariInput" placeholder="Cari nama..." oninput="renderTabel()" />
+      <input type="time" id="jamBatasTerlambat" value="08:00" style="margin-bottom:10px;">
+      <input type="text" id="cariInput" placeholder="Cari nama..." oninput="renderAbsensi()" />
     </div>
     <div class="rekap" id="rekapInfo"></div>
     <div class="table-responsive">
@@ -411,8 +450,36 @@
     </div>
 
   </div>
+  <!-- ALERT MODAL -->
+  <div id="customAlert"
+    style="display:none; position:fixed; top:20px; right:20px; z-index:9999; padding:12px 18px; border-radius:6px; font-weight:bold; font-size:0.95rem; box-shadow:0 4px 10px rgba(0,0,0,0.1); transition:opacity 0.3s;">
+  </div>
+
+  <!-- CONFIRM MODAL -->
+  <div id="confirmModal" class="modal">
+    <div class="modal-content">
+      <p id="confirmMessage" style="margin-bottom: 20px; font-size: 1rem;"></p>
+      <div class="modal-actions">
+        <button id="confirmYes" style="background:#4CAF50; color:white;">Ya</button>
+        <button id="confirmNo" class="batal">Tidak</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROMPT MODAL -->
+  <div id="promptModal" class="modal">
+    <div class="modal-content">
+      <p id="promptMessage" style="margin-bottom: 12px;"></p>
+      <input type="text" id="promptInput" placeholder="Isi di sini..." />
+      <div class="modal-actions">
+        <button id="promptOK" style="background:#2196F3; color:white;">OK</button>
+        <button id="promptCancel" class="batal">Batal</button>
+      </div>
+    </div>
+  </div>
 
   <script type="module">
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
     import {
       getDatabase, ref, set, push, get, onValue, remove, update
@@ -434,6 +501,64 @@
     const pesertaRef = ref(db, 'peserta');
     const absensiRef = ref(db, 'absensi');
 
+    function showConfirm(pesan, onYes) {
+      const modal = document.getElementById("confirmModal");
+      const pesanBox = document.getElementById("confirmMessage");
+      const btnYes = document.getElementById("confirmYes");
+      const btnNo = document.getElementById("confirmNo");
+
+      pesanBox.textContent = pesan;
+      modal.style.display = "flex";
+
+      btnYes.onclick = () => {
+        modal.style.display = "none";
+        onYes(); // Jalankan fungsi jika user klik YA
+      };
+
+      btnNo.onclick = () => {
+        modal.style.display = "none";
+      };
+    }
+
+
+    function showAlert(pesan, warna = "green") {
+      const alertBox = document.getElementById("customAlert");
+      alertBox.textContent = pesan;
+      alertBox.style.background = warna;
+      alertBox.style.color = "#fff";
+      alertBox.style.display = "block";
+      alertBox.style.opacity = "1";
+
+      setTimeout(() => {
+        alertBox.style.opacity = "0";
+        setTimeout(() => alertBox.style.display = "none", 300);
+      }, 3000);
+    }
+
+    function showPrompt(pesan, placeholder = "", onOK) {
+      const modal = document.getElementById("promptModal");
+      const message = document.getElementById("promptMessage");
+      const input = document.getElementById("promptInput");
+      const ok = document.getElementById("promptOK");
+      const cancel = document.getElementById("promptCancel");
+
+      message.textContent = pesan;
+      input.value = "";
+      input.placeholder = placeholder;
+      modal.style.display = "flex";
+      input.focus();
+
+      ok.onclick = () => {
+        modal.style.display = "none";
+        onOK(input.value.trim());
+      };
+      cancel.onclick = () => {
+        modal.style.display = "none";
+      };
+    }
+
+
+
     // Tambah Peserta
     formTambah.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -441,13 +566,13 @@
       const nomor = nomorBaru.value.trim();
       const file = fotoBaru.files[0];
 
-      if (!nama || !nomor || !file) return alert("Lengkapi semua data!");
+      if (!nama || !nomor || !file) return showAlert("Lengkapi semua data!", '#ff9800');
 
       const reader = new FileReader();
       reader.onload = async () => {
         const foto = reader.result;
         await set(ref(db, 'peserta/' + nomor), { nama, nomor, foto });
-        alert("Peserta ditambahkan.");
+        showAlert("Peserta ditambahkan.", "#4CAF50");
         formTambah.reset();
       };
       reader.readAsDataURL(file);
@@ -491,9 +616,11 @@
     };
 
     window.hapusPeserta = async (nomor) => {
-      if (confirm("Hapus peserta ini?")) {
-        await remove(ref(db, 'peserta/' + nomor));
-      }
+      showConfirm("Hapus data ini?", async () => {
+        await remove(ref(db, path));
+        showAlert("Data dihapus.", "#f44336");
+      });
+
     };
 
     // Tampilkan Absensi
@@ -507,15 +634,17 @@
 
         let no = 1;
         for (let tanggal in data) {
-  const perTanggal = data[tanggal];
-  for (let nomor in perTanggal) {
-    const a = perTanggal[nomor];
-    if (!a.nama.toLowerCase().includes(cari)) continue;
+          const perTanggal = data[tanggal];
+          for (let nomor in perTanggal) {
+            const a = perTanggal[nomor];
+            if (!a || !a.nama || typeof a.nama !== "string") continue;
+            if (!a.nama.toLowerCase().includes(cari)) continue;
 
-    rekap[a.alasan]++;
-    const statusClass = a.status === "Terlambat" ? "status-terlambat" : "status-tepat";
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
+
+            rekap[a.alasan]++;
+            const statusClass = a.status === "Terlambat" ? "status-terlambat" : "status-tepat";
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
       <td>${no++}</td>
       <td>${a.nama}</td>
       <td>${a.nomor}</td>
@@ -525,9 +654,9 @@
       <td>${a.alasan}</td>
       <td><span class="btn-hapus" onclick="hapusAbsensi('${tanggal}', '${nomor}')">Hapus</span></td>
     `;
-    tbody.appendChild(tr);
-  }
-}
+            tbody.appendChild(tr);
+          }
+        }
 
 
 
@@ -536,17 +665,24 @@
       });
     }
 
-    window.hapusAbsensi = async (tanggal, nomor) => {
-  if (confirm("Hapus data absensi ini?")) {
-    await remove(ref(db, `absensi/${tanggal}/${nomor}`));
-  }
-};
+    window.hapusAbsensi = (tanggal, nomor) => {
+      showConfirm("Yakin ingin menghapus data absensi ini?", async () => {
+        await remove(ref(db, `absensi/${tanggal}/${nomor}`));
+        showAlert("Data absensi dihapus.", "#f44336");
+      });
+    };
+
+
+    function keluar() {
+      localStorage.removeItem("isAdmin");
+      location.href = "index.html";
+    }
 
     // Export CSV
     window.exportCSV = async () => {
       const snapshot = await get(absensiRef);
       const data = snapshot.val();
-      if (!data) return alert("Belum ada data!");
+      if (!data) return showAlert("Belum ada data!", '#ff9800');
 
       let csv = "Nama;Nomor;Waktu Masuk;Waktu Pulang;Status;Alasan\n";
       Object.values(data).forEach(a => {
@@ -561,10 +697,11 @@
     };
 
     // Hapus semua
-    window.hapusSemuaData = async () => {
-      if (confirm("Hapus semua data absensi?")) {
+    window.hapusSemuaData = () => {
+      showConfirm("Yakin ingin menghapus semua data absensi?", async () => {
         await set(absensiRef, null);
-      }
+        showAlert("Semua data telah dihapus.", "#f44336");
+      });
     };
 
     let editKey = "";
@@ -572,7 +709,7 @@
     window.editPeserta = async (nomor) => {
       const snapshot = await get(ref(db, 'peserta/' + nomor));
       const data = snapshot.val();
-      if (!data) return alert("Data tidak ditemukan!");
+      if (!data) return showAlert("Data tidak ditemukan!", '#f44336');
 
       // Isi modal
       document.getElementById("editNama").value = data.nama;
@@ -585,7 +722,7 @@
       const nama = document.getElementById("editNama").value.trim();
       const nomorBaru = document.getElementById("editNomor").value.trim();
 
-      if (!nama || !nomorBaru) return alert("Isi semua field!");
+      if (!nama || !nomorBaru) return showAlert("Isi semua field!", '#ff9800');
 
       const snapshot = await get(ref(db, 'peserta/' + editKey));
       const oldData = snapshot.val();
@@ -603,20 +740,40 @@
       document.getElementById("modalEdit").style.display = "none";
     });
 
+    const inputJam = document.getElementById("jamBatasTerlambat");
+
+    // Ambil dari localStorage jika ada
+    if (localStorage.getItem("jamBatas")) {
+      inputJam.value = localStorage.getItem("jamBatas");
+    }
+
+    // Simpan ke localStorage saat berubah
+    inputJam.onchange = () => {
+      localStorage.setItem("jamBatas", inputJam.value);
+    };
+
+
     // Update jam real-time
     function updateJam() {
       const now = new Date();
       const jam = now.toLocaleTimeString('id-ID', { hour12: false });
       document.getElementById("jamSekarang").textContent = jam;
     }
+
+    if (!localStorage.getItem("isAdmin")) {
+      showAlert("Akses ditolak. Silahkan login dulu.", '#ff9800');
+      window.location.href = "login.html";
+    }
     setInterval(updateJam, 1000);
-    updateJam();
+    updateJam()
 
 
 
     // Jalankan saat halaman dibuka
     renderPeserta();
     renderAbsensi();
+    window.keluar = keluar;
+    window.renderAbsensi = renderAbsensi;
   </script>
 
 </body>

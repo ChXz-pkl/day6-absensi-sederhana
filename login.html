@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -86,6 +87,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <div class="login-box">
@@ -100,31 +102,32 @@
     <div class="error" id="errorMsg"></div>
   </div>
 
-<script>
-  // Daftar akun admin yang diperbolehkan login
-  const ADMIN_ACCOUNTS = [
-    { username: "Admin", password: "123456" },
-    { username: "Chandrx", password: "chandrx28" }
-  ];
+  <script>
+    // Daftar akun admin yang diperbolehkan login
+    const ADMIN_ACCOUNTS = [
+      { username: "Admin", password: "123456" },
+      { username: "Chandrx", password: "chandrx28" }
+    ];
 
-  function login() {
-    const user = document.getElementById("username").value.trim();
-    const pass = document.getElementById("password").value;
-    const error = document.getElementById("errorMsg");
+    function login() {
+      const user = document.getElementById("username").value.trim();
+      const pass = document.getElementById("password").value;
+      const error = document.getElementById("errorMsg");
 
-    const found = ADMIN_ACCOUNTS.find(account => 
-      account.username === user && account.password === pass
-    );
+      const found = ADMIN_ACCOUNTS.find(account =>
+        account.username === user && account.password === pass
+      );
 
-    if (found) {
-      localStorage.setItem("isAdmin", "true");
-      localStorage.setItem("adminUser", user); // Simpan siapa yang login
-      location.href = "admin.html";
-    } else {
-      error.textContent = "❌ Username atau password salah!";
+      if (found) {
+        localStorage.setItem("isAdmin", "true");
+        localStorage.setItem("adminUser", user); // Simpan siapa yang login
+        location.href = "admin.html";
+      } else {
+        error.textContent = "❌ Username atau password salah!";
+      }
     }
-  }
-</script>
+  </script>
 
 </body>
+
 </html>

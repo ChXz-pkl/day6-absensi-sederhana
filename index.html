@@ -1,12 +1,21 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Absensi - Pilih Peran</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
 
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -38,7 +47,7 @@
       color: #2c3e50;
       font-size: 2rem;
       margin-bottom: 2rem;
-      text-shadow: 1px 1px rgba(0,0,0,0.1);
+      text-shadow: 1px 1px rgba(0, 0, 0, 0.1);
     }
 
     .button-container {
@@ -52,7 +61,7 @@
     .role-card {
       background: white;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       padding: 1.5rem;
       cursor: pointer;
       transition: transform .2s ease, box-shadow .2s ease;
@@ -65,7 +74,7 @@
 
     .role-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     }
 
     .role-card svg {
@@ -82,9 +91,19 @@
     }
 
     @media (max-width: 500px) {
-      h1 { font-size: 1.5rem; }
-      .role-card { padding: 1rem; }
-      .role-card svg { width: 40px; height: 40px; }
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .role-card {
+        padding: 1rem;
+      }
+
+      .role-card svg {
+        width: 40px;
+        height: 40px;
+      }
+
       .jam-container {
         font-size: 0.85rem;
         padding: 4px 10px;
@@ -92,6 +111,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <!-- Jam Real-Time -->
@@ -101,12 +121,18 @@
 
   <div class="button-container">
     <a href="user.html" class="role-card">
-      <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/></svg>
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z" />
+      </svg>
       <span>Masuk sebagai Peserta</span>
     </a>
 
     <a href="login.html" class="role-card">
-      <svg viewBox="0 0 24 24"><path d="M12 1l8 4v6c0 5-3.7 9.8-8 10-4.3-.2-8-5-8-10V5l8-4zM12 3.1L5 6v5c0 4.4 3 8.3 7 8.9 4-.6 7-4.5 7-8.9V6l-7-2.9z"/></svg>
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M12 1l8 4v6c0 5-3.7 9.8-8 10-4.3-.2-8-5-8-10V5l8-4zM12 3.1L5 6v5c0 4.4 3 8.3 7 8.9 4-.6 7-4.5 7-8.9V6l-7-2.9z" />
+      </svg>
       <span>Masuk sebagai Admin</span>
     </a>
   </div>
@@ -122,4 +148,5 @@
   </script>
 
 </body>
+
 </html>
