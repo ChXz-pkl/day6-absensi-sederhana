@@ -495,120 +495,59 @@
         }
 
         // Absen masuk/pulang
-       async function absen(tipe) {
-    const nomor = document.getElementById("nomorInput").value.trim();
-    const alasan = document.getElementById("alasanInput").value;
-    const statusPesan = document.getElementById("statusPesan");
-    const preview = document.getElementById("previewPeserta");
+        async function absen(tipe) {
+            const nomor = document.getElementById("nomorInput").value.trim();
+            const alasan = document.getElementById("alasanInput").value;
+            const statusPesan = document.getElementById("statusPesan");
+            const preview = document.getElementById("previewPeserta");
 
-    if (!nomor) {
-        statusPesan.textContent = "❌ Nomor tidak boleh kosong!";
-        statusPesan.style.color = "red";
-        setTimeout(() => statusPesan.textContent = "", 3000);
-        return;
-    }
-
-    try {
-        const pesertaSnap = await get(child(ref(db), `peserta/${nomor}`));
-        if (!pesertaSnap.exists()) {
-            statusPesan.textContent = "❌ Nomor tidak ditemukan!";
-            statusPesan.style.color = "red";
-            setTimeout(() => statusPesan.textContent = "", 3000);
-            return;
-        }
-
-        const p = pesertaSnap.val();
-        preview.innerHTML = p.foto
-            ? `<img src="${p.foto}"/><div><strong>${p.nama}</strong></div>`
-            : `<div><strong>${p.nama}</strong></div>`;
-        setTimeout(() => preview.innerHTML = "", 5000);
-
-        const now = new Date().toISOString();
-        const tanggal = now.slice(0, 10);
-        const todayRef = ref(db, `absensi/${tanggal}/${nomor}`);
-        const todaySnap = await get(todayRef);
-
-        let absensiData = {};
-
-        if (tipe === "masuk") {
-            if (todaySnap.exists()) {
-                statusPesan.textContent = "❌ Sudah absen masuk!";
-                statusPesan.style.color = "red";
+            // cek peserta
+            const pesertaSnap = await get(child(ref(db), `peserta/${nomor}`));
+            if (!pesertaSnap.exists()) {
+                statusPesan.textContent = "❌ Nomor tidak ditemukan!"; statusPesan.style.color = "red";
                 setTimeout(() => statusPesan.textContent = "", 3000);
                 return;
             }
+            const p = pesertaSnap.val();
+            preview.innerHTML = p.foto
+                ? `<img src="${p.foto}"/><div><strong>${p.nama}</strong></div>`
+                : `<div><strong>${p.nama}</strong></div>`;
+            setTimeout(() => preview.innerHTML = "", 5000);
 
-            const masuk = new Date(now);
-            const batas = new Date(masuk);
-            batas.setHours(9, 0, 0, 0);
+            // path absensi hari ini
+            const now = new Date().toISOString();
+            const tanggal = now.slice(0, 10);
+            const todayRef = ref(db, `absensi/${tanggal}/${nomor}`);
+            const todaySnap = await get(todayRef);
 
-            const status = masuk > batas ? "Terlambat" : "Tepat Waktu";
-
-            absensiData = {
-                nama: p.nama,
-                nomor,
-                waktuMasuk: now,
-                waktuPulang: "",
-                alasan,
-                status
-            };
-
-            await set(todayRef, absensiData);
-
-            statusPesan.textContent = "✅ Absen masuk berhasil.";
-            statusPesan.style.color = "green";
-        } else {
-            if (!todaySnap.exists()) {
-                statusPesan.textContent = "❌ Belum absen masuk!";
-                statusPesan.style.color = "red";
-                setTimeout(() => statusPesan.textContent = "", 3000);
-                return;
+            if (tipe === "masuk") {
+                if (todaySnap.exists()) {
+                    statusPesan.textContent = "❌ Sudah absen masuk!"; statusPesan.style.color = "red";
+                    setTimeout(() => statusPesan.textContent = "", 3000); return;
+                }
+                const masuk = new Date(now), batas = new Date(masuk); batas.setHours(8, 0, 0, 0);
+                const status = masuk > batas ? "Terlambat" : "Tepat Waktu";
+                await set(todayRef, {
+                    nama: p.nama, nomor, waktuMasuk: now,
+                    waktuPulang: "", alasan, status
+                });
+                statusPesan.textContent = "✅ Absen masuk berhasil."; statusPesan.style.color = "green";
+            } else {
+                if (!todaySnap.exists()) {
+                    statusPesan.textContent = "❌ Belum absen masuk!"; statusPesan.style.color = "red";
+                    setTimeout(() => statusPesan.textContent = "", 3000); return;
+                }
+                const data = todaySnap.val();
+                if (data.waktuPulang) {
+                    statusPesan.textContent = "❌ Sudah absen pulang!"; statusPesan.style.color = "red";
+                    setTimeout(() => statusPesan.textContent = "", 3000); return;
+                }
+                await update(todayRef, { waktuPulang: now });
+                statusPesan.textContent = "✅ Absen pulang berhasil."; statusPesan.style.color = "green";
             }
-
-            const data = todaySnap.val();
-            if (data.waktuPulang) {
-                statusPesan.textContent = "❌ Sudah absen pulang!";
-                statusPesan.style.color = "red";
-                setTimeout(() => statusPesan.textContent = "", 3000);
-                return;
-            }
-
-            const waktuPulang = now;
-            await update(todayRef, { waktuPulang });
-
-            absensiData = {
-                ...data,
-                waktuPulang
-            };
-
-            statusPesan.textContent = "✅ Absen pulang berhasil.";
-            statusPesan.style.color = "green";
+            document.getElementById("formAbsen").reset();
+            renderTabel();
         }
-
-        // ✅ Kirim ke Google Sheets (opsional dan aman dari error)
-        try {
-            await fetch("https://script.google.com/macros/s/AKfycbzimRK0WLUfvexckCJjcj6MgjPeFcc6hwPMt2241Xy-mUHU7fox5YnQJPxxcxd9YSKMYQ/exec", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(absensiData)
-            });
-        } catch (err) {
-            console.warn("⚠️ Gagal kirim ke Google Sheets:", err);
-        }
-
-        document.getElementById("formAbsen").reset();
-        renderTabel();
-
-    } catch (error) {
-        console.error("❌ Terjadi kesalahan saat proses absen:", error);
-        statusPesan.textContent = "❌ Terjadi kesalahan!";
-        statusPesan.style.color = "red";
-    }
-}
-
-
 
         // Render tabel absensi
         async function renderTabel() {
