@@ -525,7 +525,7 @@
                     statusPesan.textContent = "❌ Sudah absen masuk!"; statusPesan.style.color = "red";
                     setTimeout(() => statusPesan.textContent = "", 3000); return;
                 }
-                const masuk = new Date(now), batas = new Date(masuk); batas.setHours(8, 0, 0, 0);
+                const masuk = new Date(now), batas = new Date(masuk); batas.setHours(9, 0, 0, 0);
                 const status = masuk > batas ? "Terlambat" : "Tepat Waktu";
                 await set(todayRef, {
                     nama: p.nama, nomor, waktuMasuk: now,
