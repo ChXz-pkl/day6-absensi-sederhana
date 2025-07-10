@@ -679,6 +679,21 @@
       location.href = "index.html";
     }
 
+    function formatTanggal(isoString) {
+  if (!isoString) return "-";
+  const d = new Date(isoString);
+  return d.toLocaleString('id-ID', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+}
+
+
 window.exportCSV = async () => {
   const snapshot = await get(absensiRef);
   const data = snapshot.val();
@@ -693,8 +708,8 @@ window.exportCSV = async () => {
         tanggal,
         a.nama || "-",
         a.nomor || "-",
-        a.waktuMasuk || "-",
-        a.waktuPulang || "-",
+        formatTanggal(a.waktuMasuk),
+  formatTanggal(a.waktuPulang),
         a.status || "-",
         a.alasan || "-"
       ]);
