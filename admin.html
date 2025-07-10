@@ -684,12 +684,13 @@
   const data = snapshot.val();
   if (!data) return showAlert("Belum ada data!", '#ff9800');
 
-  let csv = "Tanggal,Nama,Nomor,Waktu Masuk,Waktu Pulang,Status,Alasan\n";
+  let csv = "Tanggal;Nama;Nomor;Waktu Masuk;Waktu Pulang;Status
+    ;Alasan\n";
 
   for (let tanggal in data) {
     for (let nomor in data[tanggal]) {
       const a = data[tanggal][nomor];
-      csv += `"${tanggal}","${a.nama}","${a.nomor}","${a.waktuMasuk || "-"}","${a.waktuPulang || "-"}","${a.status || "-"}","${a.alasan || "-"}"\n`;
+      csv += `"${tanggal}";"${a.nama}";"${a.nomor}";"${a.waktuMasuk || "-"}";"${a.waktuPulang || "-"}";"${a.status || "-"}";"${a.alasan || "-"}"\n`;
     }
   }
 
