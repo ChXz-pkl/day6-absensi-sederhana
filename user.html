@@ -260,6 +260,16 @@
             color: #c62828;
         }
 
+        .status-bolos {
+            background: #ffebee;
+            color: #b71c1c;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+
         /* ===== RESPONSIVE ===== */
         /* ============================= */
         /* ======== RESPONSIVE ========= */
@@ -447,7 +457,6 @@
                     <th>No</th>
                     <th>Nama</th>
                     <th>Nomor</th>
-                    <th>Masuk</th>
                     <th>Pulang</th>
                     <th>Status</th>
                     <th>Alasan</th>
@@ -548,6 +557,17 @@
 
             // ===== ABSEN PULANG =====
             else if (tipe === "pulang") {
+                const jamPulang = new Date(now);
+                const jam = jamPulang.getHours();
+                const menit = jamPulang.getMinutes();
+
+                let statusPulang = "Terlambat Pulang";
+                if (jam < 16) {
+                    statusPulang = "Bolos";
+                } else if (jam === 16 && menit <= 10) {
+                    statusPulang = "Pulang";
+                }
+
                 if (!todaySnap.exists()) {
                     await set(todayRef, {
                         nama: p.nama,
@@ -555,10 +575,8 @@
                         waktuMasuk: "",
                         waktuPulang: now,
                         alasan,
-                        status: "Langsung Pulang"
+                        status: statusPulang
                     });
-                    statusPesan.textContent = "⚠️ Absen masuk kosong. Pulang dicatat.";
-                    statusPesan.style.color = "orange";
                 } else {
                     const data = todaySnap.val();
                     if (data.waktuPulang) {
@@ -567,11 +585,21 @@
                         return;
                     }
 
-                    await update(todayRef, { waktuPulang: now });
-                    statusPesan.textContent = "✅ Absen pulang berhasil.";
-                    statusPesan.style.color = "green";
+                    await update(todayRef, {
+                        waktuPulang: now,
+                        status: statusPulang
+                    });
                 }
+
+                statusPesan.textContent = `✅ Absen pulang berhasil (${statusPulang})`;
+                statusPesan.style.color = statusPulang === "Pulang" ? "green" :
+                    statusPulang === "Terlambat Pulang" ? "orange" :
+                        "red";
+                setTimeout(() => {
+                    statusPesan.textContent = "";
+                }, 3000);
             }
+
 
             document.getElementById("formAbsen").reset();
             renderTabel();
@@ -594,17 +622,16 @@
                     tr.innerHTML = `
           <td>${no++}</td>
           <td>${a.nama}</td>
-          <td>${a.nomor}</td>
-          <td>${a.waktuMasuk ? new Date(a.waktuMasuk).toLocaleString("id-ID") : "-"}</td>
+          <td>${a.nomor}</td>     
           <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
-          <td class="${a.status === 'Terlambat' ? 'status-terlambat' : 'status-tepat'}">${a.status || "-"}</td>
+          <td class="${a.status === 'Terlambat Pulang' ? 'status-terlambat' : a.status === 'Bolos' ? 'status-bolos' : 'status-tepat'}"> ${a.status || "-"}</td>
           <td>${a.alasan}</td>
         `;
                     tbody.appendChild(tr);
                 });
             });
         }
-
+        // <td>${a.waktuMasuk ? new Date(a.waktuMasuk).toLocaleString("id-ID") : "-"}</td>
         function updateJam() {
             const now = new Date();
             const jam = now.toLocaleTimeString("id-ID", { hour12: false });
@@ -621,7 +648,8 @@
         loadPeserta();
         renderTabel();
 
-        document.getElementById("btnMasuk").onclick = () => absen('masuk');
+        document.getElementById("btnMasuk").style.display = "none";
+        // document.getElementById("btnMasuk").onclick = () => absen('masuk');
         document.getElementById("btnPulang").onclick = () => absen('pulang');
     </script>
 

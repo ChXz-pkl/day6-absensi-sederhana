@@ -183,6 +183,16 @@
       font-weight: bold;
     }
 
+    .status-bolos {
+      color: #b71c1c;
+      background-color: #ffebee;
+      font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 8px;
+      display: inline-block;
+    }
+
+
     .btn-hapus {
       color: #e53935;
       font-weight: bold;
@@ -417,7 +427,6 @@
             <th>no</th>
             <th>Nama</th>
             <th>Nomor</th>
-            <th>Masuk</th>
             <th>Pulang</th>
             <th>Status</th>
             <th>Alasan</th>
@@ -643,13 +652,14 @@
 
 
             rekap[a.alasan]++;
-            const statusClass = a.status === "Terlambat" ? "status-terlambat" : "status-tepat";
+            let statusClass = "status-tepat";
+            if (a.status === "Terlambat Pulang") statusClass = "status-terlambat";
+            else if (a.status === "Bolos") statusClass = "status-bolos";
             const tr = document.createElement("tr");
             tr.innerHTML = `
       <td>${no++}</td>
       <td>${a.nama}</td>
       <td>${a.nomor}</td>
-      <td>${a.waktuMasuk ? new Date(a.waktuMasuk).toLocaleString("id-ID") : "-"}</td>
       <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
       <td class="${statusClass}">${a.status || "-"}</td>
       <td>${a.alasan}</td>
@@ -680,48 +690,47 @@
     }
 
     function formatTanggal(isoString) {
-  if (!isoString) return "-";
-  const d = new Date(isoString);
-  return d.toLocaleString('id-ID', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
-  });
-}
-
-
-window.exportCSV = async () => {
-  const snapshot = await get(absensiRef);
-  const data = snapshot.val();
-  if (!data) return showAlert("Belum ada data!", '#ff9800');
-
-  const rows = [["Tanggal", "Nama", "Nomor", "Waktu Masuk", "Waktu Pulang", "Status", "Alasan"]];
-
-  for (let tanggal in data) {
-    for (let nomor in data[tanggal]) {
-      const a = data[tanggal][nomor];
-      rows.push([
-        tanggal,
-        a.nama || "-",
-        a.nomor || "-",
-        formatTanggal(a.waktuMasuk),
-  formatTanggal(a.waktuPulang),
-        a.status || "-",
-        a.alasan || "-"
-      ]);
+      if (!isoString) return "-";
+      const d = new Date(isoString);
+      return d.toLocaleString('id-ID', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
     }
-  }
 
-  const worksheet = XLSX.utils.aoa_to_sheet(rows);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Absensi");
 
-  XLSX.writeFile(workbook, "data_absensi.xlsx");
-};
+    window.exportCSV = async () => {
+      const snapshot = await get(absensiRef);
+      const data = snapshot.val();
+      if (!data) return showAlert("Belum ada data!", '#ff9800');
+
+      const rows = [["Tanggal", "Nomor", "Nama", "Waktu Pulang", "Status", "Alasan"]];
+
+      for (let tanggal in data) {
+        for (let nomor in data[tanggal]) {
+          const a = data[tanggal][nomor];
+          rows.push([
+            tanggal,
+            a.nomor || "-",
+            a.nama || "-",
+            formatTanggal(a.waktuPulang),
+            a.status || "-",
+            a.alasan || "-"
+          ]);
+        }
+      }
+
+      const worksheet = XLSX.utils.aoa_to_sheet(rows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Absensi");
+
+      XLSX.writeFile(workbook, "data_absensi.xlsx");
+    };
 
 
 
