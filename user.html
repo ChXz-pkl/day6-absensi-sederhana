@@ -243,31 +243,29 @@
         /* status badge */
         .status-tepat,
         .status-terlambat {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: .85rem;
             font-weight: bold;
         }
 
         .status-tepat {
-            background: #e8f5e9;
             color: #2e7d32;
         }
 
         .status-terlambat {
-            background: #ffebee;
             color: #c62828;
         }
 
         .status-bolos {
-            background: #ffebee;
             color: #b71c1c;
-            font-weight: bold;
-            padding: 4px 8px;
-            border-radius: 12px;
-            display: inline-block;
+            font-weight: bolder;
         }
+
+        .status-izin,
+        .status-sakit {
+            color: #f57c00;
+            font-weight: bold;
+
+        }
+
 
 
         /* ===== RESPONSIVE ===== */
@@ -562,11 +560,20 @@
                 const menit = jamPulang.getMinutes();
 
                 let statusPulang = "Terlambat Pulang";
-                if (jam < 16) {
-                    statusPulang = "Bolos";
-                } else if (jam === 16 && menit <= 10) {
-                    statusPulang = "Pulang";
+
+                if (alasan === "Sakit" || alasan === "Izin") {
+                    statusPulang = alasan; // langsung jadi 'Sakit' atau 'Izin'
+                } else {
+                    if (jam < 16) {
+                        statusPulang = "Bolos";
+                    } else if (jam === 16 && menit <= 10) {
+                        statusPulang = "Tepat";
+                    } else {
+                        statusPulang = "Terlambat";
+                    }
                 }
+
+
 
                 if (!todaySnap.exists()) {
                     await set(todayRef, {
@@ -593,7 +600,7 @@
 
                 statusPesan.textContent = `✅ Absen pulang berhasil (${statusPulang})`;
                 statusPesan.style.color = statusPulang === "Pulang" ? "green" :
-                    statusPulang === "Terlambat Pulang" ? "orange" :
+                    statusPulang === "Terlambat" ? "orange" :
                         "red";
                 setTimeout(() => {
                     statusPesan.textContent = "";
@@ -624,7 +631,7 @@
           <td>${a.nama}</td>
           <td>${a.nomor}</td>     
           <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
-          <td class="${a.status === 'Terlambat Pulang' ? 'status-terlambat' : a.status === 'Bolos' ? 'status-bolos' : 'status-tepat'}"> ${a.status || "-"}</td>
+          <td class="${a.status === 'Terlambat' ? 'status-terlambat' : a.status === 'Bolos' ? 'status-bolos' : a.status === 'Izin' ? 'status-izin' : a.status === 'Sakit' ? 'status-sakit' : 'status-tepat'}"> ${a.status || "-"}</td>
           <td>${a.alasan}</td>
         `;
                     tbody.appendChild(tr);

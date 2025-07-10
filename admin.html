@@ -185,11 +185,14 @@
 
     .status-bolos {
       color: #b71c1c;
-      background-color: #ffebee;
+      font-weight: bolder;
+    }
+
+    .status-izin,
+    .status-sakit {
+      color: #f57c00;
       font-weight: bold;
-      padding: 4px 8px;
-      border-radius: 8px;
-      display: inline-block;
+
     }
 
 
@@ -204,6 +207,17 @@
       color: #b71c1c;
     }
 
+    .btn-edit {
+      color: #1976d2;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-edit:hover {
+      color: #0d47a1;
+    }
+
+
     /* DAFTAR PESERTA */
     ul#daftarPeserta {
       display: grid;
@@ -212,6 +226,126 @@
       list-style: none;
       margin-top: 20px;
     }
+
+    /* === MODAL EDIT ABSENSI KHUSUS === */
+
+    .modal-absen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      display: none;
+      /* awalnya tersembunyi */
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+
+    .modal-box {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-box select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border-radius: 6px;
+    }
+
+    .modal-edit-absen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      /* ini penting! */
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .modal-edit-box {
+      background: #fff;
+      padding: 24px 28px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .modal-edit-box h3 {
+      font-size: 1.4rem;
+      color: #2c3e50;
+      margin-bottom: 16px;
+    }
+
+    .modal-edit-box select {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #f9f9f9;
+      transition: border-color .2s ease;
+    }
+
+    .modal-edit-box select:focus {
+      border-color: #4CAF50;
+      outline: none;
+    }
+
+    .modal-edit-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .modal-edit-actions button {
+      padding: 10px 18px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .modal-edit-actions button.simpan {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .modal-edit-actions button.batal {
+      background: #ccc;
+      color: #333;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+
 
     ul#daftarPeserta li {
       background: white;
@@ -245,7 +379,7 @@
       display: none;
       justify-content: center;
       align-items: center;
-      z-index: 1000;
+      z-index: 9999;
     }
 
     .modal-content {
@@ -254,9 +388,18 @@
       border-radius: 8px;
       width: 90%;
       max-width: 400px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       text-align: center;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
+
+    .modal-content select {
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+      margin: 10px 0;
+      border-radius: 6px;
+    }
+
 
     .modal-content input {
       width: 100%;
@@ -424,13 +567,14 @@
       <table>
         <thead>
           <tr>
-            <th>no</th>
+            <th>No</th>
             <th>Nama</th>
             <th>Nomor</th>
             <th>Pulang</th>
             <th>Status</th>
             <th>Alasan</th>
-            <th>Aksi</th>
+            <th>Hapus</th>
+            <th>Edit</th>
           </tr>
         </thead>
         <tbody id="absenBody"></tbody>
@@ -487,6 +631,32 @@
     </div>
   </div>
 
+  <div id="modalEditAbsen" class="modal-absen">
+    <div class="modal-box">
+      <h3>Edit Data Absensi</h3>
+
+      <input type="datetime-local" id="editWaktuPulang" />
+
+      <select id="editStatusSelect">
+        <option value="Tepat">Tepat</option>
+        <option value="Terlambat">Terlambat</option>
+        <option value="Bolos">Bolos</option>
+        <option value="Izin">Izin</option>
+        <option value="Sakit">Sakit</option>
+      </select>
+      <select id="editAlasanSelect">
+        <option value="Hadir">Hadir</option>
+        <option value="Izin">Izin</option>
+        <option value="Sakit">Sakit</option>
+      </select>
+      <div class="modal-actions">
+        <button class="simpan" id="simpanEditAbsen">Simpan</button>
+        <button class="batal" id="batalEditAbsen">Batal</button>
+      </div>
+    </div>
+  </div>
+
+
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
   <script type="module">
 
@@ -507,6 +677,7 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+
 
     const pesertaRef = ref(db, 'peserta');
     const absensiRef = ref(db, 'absensi');
@@ -610,20 +781,50 @@
       });
     }
 
-    window.editPeserta = async (nomor) => {
-      const namaBaru = prompt("Edit nama:");
-      const nomorBaru = prompt("Edit nomor:");
-      if (namaBaru && nomorBaru) {
-        const snapshot = await get(ref(db, 'peserta/' + nomor));
-        const oldData = snapshot.val();
-        await set(ref(db, 'peserta/' + nomorBaru), {
-          nama: namaBaru,
-          nomor: nomorBaru,
-          foto: oldData.foto
-        });
-        if (nomorBaru !== nomor) await remove(ref(db, 'peserta/' + nomor));
+
+    window.editAbsensi = async (tanggal, nomor) => {
+      const snap = await get(ref(db, `absensi/${tanggal}/${nomor}`));
+      if (!snap.exists()) {
+        showAlert("❌ Data tidak ditemukan", "#f44336");
+        return;
       }
+
+      const data = snap.val();
+      const modal = document.querySelector(".modal-edit-absen");
+
+      // Tampilkan modal
+      modal.style.display = "flex";
+
+      // Isi nilai awal
+      document.getElementById("editStatusSelect").value = data.status || "Tepat";
+      document.getElementById("editAlasanSelect").value = data.alasan || "Hadir";
+      document.getElementById("editWaktuPulang").value =
+        data.waktuPulang ? new Date(data.waktuPulang).toISOString().slice(0, 16) : "";
+
+      // Tombol Simpan
+      document.getElementById("simpanEditAbsen").onclick = async () => {
+        const statusBaru = document.getElementById("editStatusSelect").value;
+        const alasanBaru = document.getElementById("editAlasanSelect").value;
+        const waktuPulangBaru = document.getElementById("editWaktuPulang").value;
+
+        const dataFinal = {
+          ...data,
+          status: statusBaru,
+          alasan: alasanBaru,
+          waktuPulang: waktuPulangBaru ? new Date(waktuPulangBaru).toISOString() : data.waktuPulang
+        };
+
+        await set(ref(db, `absensi/${tanggal}/${nomor}`), dataFinal);
+        modal.style.display = "none";
+        showAlert("✅ Data absensi diperbarui", "#4CAF50");
+      };
+
+      // Tombol Batal
+      document.getElementById("batalEditAbsen").onclick = () => {
+        modal.style.display = "none";
+      };
     };
+
 
     window.hapusPeserta = async (nomor) => {
       showConfirm("Hapus data ini?", async () => {
@@ -631,6 +832,85 @@
         showAlert("Data dihapus.", "#f44336");
       });
 
+    };
+
+    window.editAbsensi = async (tanggal, nomor) => {
+      const snap = await get(ref(db, `absensi/${tanggal}/${nomor}`));
+      if (!snap.exists()) {
+        showAlert("❌ Data tidak ditemukan", "#f44336");
+        return;
+      }
+
+      const data = snap.val();
+
+      // Modal sederhana pakai prompt-style HTML (bisa diubah ke modal beneran nanti)
+      const statusOptions = ["Tepat", "Terlambat", "Bolos", "Izin", "Sakit"];
+      const alasanOptions = ["Hadir", "Izin", "Sakit"];
+
+      const statusSelect = document.createElement("select");
+      statusOptions.forEach(opt => {
+        const option = document.createElement("option");
+        option.value = opt;
+        option.textContent = opt;
+        if (data.status === opt) option.selected = true;
+        statusSelect.appendChild(option);
+      });
+
+      const alasanSelect = document.createElement("select");
+      alasanOptions.forEach(opt => {
+        const option = document.createElement("option");
+        option.value = opt;
+        option.textContent = opt;
+        if (data.alasan === opt) option.selected = true;
+        alasanSelect.appendChild(option);
+      });
+
+      const wrapper = document.createElement("div");
+      wrapper.innerHTML = "<p><strong>Edit Status & Alasan</strong></p>";
+      wrapper.appendChild(statusSelect);
+      wrapper.appendChild(alasanSelect);
+
+      const modal = document.createElement("div");
+      modal.className = "modal";
+      modal.style.display = "flex";
+      modal.style.justifyContent = "center";
+      modal.style.alignItems = "center";
+      modal.style.position = "fixed";
+      modal.style.top = 0;
+      modal.style.left = 0;
+      modal.style.width = "100%";
+      modal.style.height = "100%";
+      modal.style.background = "rgba(0,0,0,0.5)";
+      modal.innerHTML = `
+    <div style="background:#fff; padding:20px; border-radius:8px; max-width:300px; text-align:center;">
+      ${wrapper.innerHTML}
+      <br/>
+      <button id="btnOKEdit" style="margin-top:10px; padding:8px 16px; background:#4CAF50; color:#fff; border:none; border-radius:4px;">Simpan</button>
+      <button id="btnBatalEdit" style="margin-top:10px; margin-left:8px; padding:8px 16px; background:#ccc; border:none; border-radius:4px;">Batal</button>
+    </div>
+  `;
+      document.body.appendChild(modal);
+
+      // Append dropdowns ke dalam modal
+      modal.querySelector("div").prepend(alasanSelect);
+      modal.querySelector("div").prepend(statusSelect);
+
+      modal.querySelector("#btnOKEdit").onclick = async () => {
+        const newStatus = statusSelect.value;
+        const newAlasan = alasanSelect.value;
+        const dataFinal = {
+          ...data,
+          status: newStatus,
+          alasan: newAlasan
+        };
+        await set(ref(db, `absensi/${tanggal}/${nomor}`), dataFinal);
+        modal.remove();
+        showAlert("✅ Data absensi berhasil diperbarui", "#4CAF50");
+      };
+
+      modal.querySelector("#btnBatalEdit").onclick = () => {
+        modal.remove();
+      };
     };
 
     // Tampilkan Absensi
@@ -653,8 +933,11 @@
 
             rekap[a.alasan]++;
             let statusClass = "status-tepat";
-            if (a.status === "Terlambat Pulang") statusClass = "status-terlambat";
+            if (a.status === "Terlambat") statusClass = "status-terlambat";
             else if (a.status === "Bolos") statusClass = "status-bolos";
+            else if (a.status === "Izin") statusClass = "status-izin";
+            else if (a.status === "Sakit") statusClass = "status-sakit";
+
             const tr = document.createElement("tr");
             tr.innerHTML = `
       <td>${no++}</td>
@@ -663,7 +946,10 @@
       <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
       <td class="${statusClass}">${a.status || "-"}</td>
       <td>${a.alasan}</td>
-      <td><span class="btn-hapus" onclick="hapusAbsensi('${tanggal}', '${nomor}')">Hapus</span></td>
+      <td><span class="btn-edit" onclick="editAbsensi('${tanggal}', '${nomor}')">Edit</span></td>
+      <td>
+        <span class="btn-hapus" onclick="hapusAbsensi('${tanggal}', '${nomor}')">Hapus</span>
+      </td>
     `;
             tbody.appendChild(tr);
           }
@@ -744,17 +1030,36 @@
 
     let editKey = "";
 
-    window.editPeserta = async (nomor) => {
-      const snapshot = await get(ref(db, 'peserta/' + nomor));
-      const data = snapshot.val();
-      if (!data) return showAlert("Data tidak ditemukan!", '#f44336');
+    window.editAbsensi = async (tanggal, nomor) => {
+      const snap = await get(ref(db, `absensi/${tanggal}/${nomor}`));
+      if (!snap.exists()) return showAlert("❌ Data tidak ditemukan", "#f44336");
 
-      // Isi modal
-      document.getElementById("editNama").value = data.nama;
-      document.getElementById("editNomor").value = data.nomor;
-      editKey = nomor;
-      document.getElementById("modalEdit").style.display = "flex";
+      const data = snap.val();
+
+      document.getElementById("editStatusSelect").value = data.status || "Tepat";
+      document.getElementById("editAlasanSelect").value = data.alasan || "Hadir";
+
+      document.getElementById("modalEditAbsen").style.display = "flex";
+
+      document.getElementById("simpanEditAbsen").onclick = async () => {
+        const newStatus = document.getElementById("editStatusSelect").value;
+        const newAlasan = document.getElementById("editAlasanSelect").value;
+
+        await set(ref(db, `absensi/${tanggal}/${nomor}`), {
+          ...data,
+          status: newStatus,
+          alasan: newAlasan
+        });
+
+        document.getElementById("modalEditAbsen").style.display = "none";
+        showAlert("✅ Data absensi diperbarui", "#4CAF50");
+      };
+
+      document.getElementById("batalEditAbsen").onclick = () => {
+        document.getElementById("modalEditAbsen").style.display = "none";
+      };
     };
+
 
     document.getElementById("simpanEdit").addEventListener("click", async () => {
       const nama = document.getElementById("editNama").value.trim();
@@ -812,6 +1117,7 @@
     renderAbsensi();
     window.keluar = keluar;
     window.renderAbsensi = renderAbsensi;
+
   </script>
 
 </body>
