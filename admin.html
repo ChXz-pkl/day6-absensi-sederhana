@@ -680,21 +680,26 @@
 
     // Export CSV
     window.exportCSV = async () => {
-      const snapshot = await get(absensiRef);
-      const data = snapshot.val();
-      if (!data) return showAlert("Belum ada data!", '#ff9800');
+  const snapshot = await get(absensiRef);
+  const data = snapshot.val();
+  if (!data) return showAlert("Belum ada data!", '#ff9800');
 
-      let csv = "Nama;Nomor;Waktu Masuk;Waktu Pulang;Status;Alasan\n";
-      Object.values(data).forEach(a => {
-        csv += `"${a.nama}";"${a.nomor}";"${a.waktuMasuk}";"${a.waktuPulang}";"${a.status}";"${a.alasan}"\n`;
-      });
+  let csv = "Tanggal,Nama,Nomor,Waktu Masuk,Waktu Pulang,Status,Alasan\n";
 
-      const blob = new Blob([csv], { type: "text/csv" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "absensi.csv";
-      link.click();
-    };
+  for (let tanggal in data) {
+    for (let nomor in data[tanggal]) {
+      const a = data[tanggal][nomor];
+      csv += `"${tanggal}","${a.nama}","${a.nomor}","${a.waktuMasuk || "-"}","${a.waktuPulang || "-"}","${a.status || "-"}","${a.alasan || "-"}"\n`;
+    }
+  }
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "data_absensi.csv";
+  link.click();
+};
+
 
     // Hapus semua
     window.hapusSemuaData = () => {
