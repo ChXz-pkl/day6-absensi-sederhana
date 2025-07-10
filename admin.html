@@ -478,6 +478,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
   <script type="module">
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
@@ -678,28 +679,35 @@
       location.href = "index.html";
     }
 
-    // Export CSV
-    window.exportCSV = async () => {
+window.exportCSV = async () => {
   const snapshot = await get(absensiRef);
   const data = snapshot.val();
   if (!data) return showAlert("Belum ada data!", '#ff9800');
 
-  let csv = "Tanggal;Nama;Nomor;Waktu Masuk;Waktu Pulang;Status
-    ;Alasan\n";
+  const rows = [["Tanggal", "Nama", "Nomor", "Waktu Masuk", "Waktu Pulang", "Status", "Alasan"]];
 
   for (let tanggal in data) {
     for (let nomor in data[tanggal]) {
       const a = data[tanggal][nomor];
-      csv += `"${tanggal}";"${a.nama}";"${a.nomor}";"${a.waktuMasuk || "-"}";"${a.waktuPulang || "-"}";"${a.status || "-"}";"${a.alasan || "-"}"\n`;
+      rows.push([
+        tanggal,
+        a.nama || "-",
+        a.nomor || "-",
+        a.waktuMasuk || "-",
+        a.waktuPulang || "-",
+        a.status || "-",
+        a.alasan || "-"
+      ]);
     }
   }
 
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "data_absensi.csv";
-  link.click();
+  const worksheet = XLSX.utils.aoa_to_sheet(rows);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Absensi");
+
+  XLSX.writeFile(workbook, "data_absensi.xlsx");
 };
+
 
 
     // Hapus semua
