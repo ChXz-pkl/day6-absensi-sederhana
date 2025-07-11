@@ -637,28 +637,29 @@
 
         // Render tabel absensi
         async function renderTabel() {
-            const tbody = document.getElementById("absenBody");
-            const q = document.getElementById("cariInput").value.toLowerCase();
-            tbody.innerHTML = "";
+    const tbody = document.getElementById("absenBody");
+    const q = document.getElementById("cariInput").value.toLowerCase();
+    tbody.innerHTML = "";
 
-            const pesertaSnap = await get(pesertaRef);
-            const snap = await get(absensiRef);
-            if (!snap.exists() || !pesertaSnap.exists()) return;
+    const pesertaSnap = await get(pesertaRef);
+    const snap = await get(absensiRef);
+    if (!snap.exists() || !pesertaSnap.exists()) return;
 
-            const semuaPeserta = pesertaSnap.val();
-            const totalPeserta = Object.keys(semuaPeserta).length;
+    const semuaPeserta = pesertaSnap.val();
+    const totalPeserta = Object.keys(semuaPeserta).length;
 
-            const now = new Date();
-            const tanggalHariIni = now.toISOString().slice(0, 10);
+    const now = new Date();
+    const tanggalHariIni = now.toISOString().slice(0, 10);
+    const dataHariIni = snap.val()[tanggalHariIni];
 
-            const dataHariIni = snap.val()[tanggalHariIni];
-            if (!dataHariIni) return;
+    if (!dataHariIni) return;
 
-            let no = 1;
-            Object.entries(dataHariIni).forEach(([nomor, a]) => {
-                if ((a.nama || "").toLowerCase().includes(q) === false) return;
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
+    let no = 1;
+    let jumlahAbsen = 0;
+
+    Object.entries(dataHariIni).forEach(([nomor, a]) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
       <td>${no++}</td>
       <td>${a.nama}</td>
       <td>${a.nomor}</td>     
@@ -666,20 +667,20 @@
       <td class="${a.status === 'Terlambat' ? 'status-terlambat' : a.status === 'Bolos' ? 'status-bolos' : a.status === 'Izin' ? 'status-izin' : a.status === 'Sakit' ? 'status-sakit' : 'status-tepat'}"> ${a.status || "-"}</td>
       <td>${a.alasan}</td>
     `;
-                tbody.appendChild(tr);
-            });
+        tbody.appendChild(tr);
+        jumlahAbsen++;
+    });
 
-            // ✅ Tambahkan informasi "absensi lengkap"
-            const jumlahAbsen = Object.keys(dataHariIni).length;
-            if (jumlahAbsen === totalPeserta) {
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-      <td colspan="6" style="text-align:center; font-weight:bold; color:green;">
-        ✅ Absensi lengkap hari ini (${jumlahAbsen}/${totalPeserta})
-      </td>`;
-                tbody.appendChild(tr);
-            }
-        }
+    // Tampilkan info bahwa absensi hari ini sudah lengkap
+    if (jumlahAbsen === totalPeserta) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+        <td colspan="6" style="text-align:center; font-weight:bold; color:green;">
+            ✅ Absensi lengkap hari ini (${jumlahAbsen}/${totalPeserta})
+        </td>`;
+        tbody.appendChild(tr);
+    }
+}
 
         // <td>${a.waktuMasuk ? new Date(a.waktuMasuk).toLocaleString("id-ID") : "-"}</td>
         function updateJam() {
