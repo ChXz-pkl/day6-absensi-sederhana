@@ -24,9 +24,6 @@
       color: #333;
     }
 
-    body {
-      padding: 20px;
-    }
 
     /* CONTAINER */
     .container {
@@ -35,22 +32,62 @@
     }
 
     /* HEADERS */
+    body {
+      padding: 16px;
+    }
+
     h2 {
       font-size: 1.8rem;
       color: #2c3e50;
       margin-bottom: 16px;
       position: relative;
+      text-align: center;
       padding-bottom: 8px;
     }
 
     h2::after {
       content: '';
       display: block;
-      width: 50px;
-      height: 3px;
+      width: 60px;
+      height: 4px;
       background: #4CAF50;
-      margin-top: 4px;
+      margin: 8px auto 0;
       border-radius: 2px;
+    }
+
+    .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding: 0 12px;
+    }
+
+    .header-container .left,
+    .header-container .right {
+      width: 100px;
+      text-align: center;
+    }
+
+    .header-container .center {
+      flex: 1;
+      text-align: center;
+    }
+
+    .header-container h2 {
+      margin: 0;
+      font-size: 1.75rem;
+      color: #2c3e50;
+      position: relative;
+    }
+
+    .kembali-btn {
+      background: #f44336;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer
     }
 
     /* FORM TAMBAH PESERTA */
@@ -470,7 +507,6 @@
       transform: scale(0.98);
     }
 
-
     /* RESPONSIVE */
     @media (max-width:768px) {
       .container {
@@ -536,18 +572,59 @@
         width: 60px;
         height: 60px;
       }
+
+      .header-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .header-container .left,
+      .header-container .right {
+        width: 100%;
+        text-align: center;
+      }
+
+      .kembali-btn {
+        font-size: 0.95rem;
+        padding: 4px 10px;
+      }
+
+      .jam-atas {
+        font-size: 0.9rem;
+        padding: 4px 12px;
+        position: relative;
+        top: 0;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 6px 12px;
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
     }
   </style>
 </head>
 
 <body>
   <div class="container">
-    <!-- Tambahkan ini di bawah judul -->
-    <div style="display: flex; justify-content: space-between; align-items: center;">
+
+    <div class="header-container">
+      <div class="left">
+        <button class="kembali-btn" onclick="location.href='index.html'">Kembali</button>
+      </div>
+      <div class="center">
+        <h2>Form Admin</h2>
+      </div>
+      <div class="right">
+        <div class="jam-atas" id="jamSekarang">--:--:--</div>
+      </div>
+    </div>
+    <!--  -->
+    <!-- <div style="display: flex; justify-content: space-between; align-items: center;">
       <button onclick="keluar()"
         style="background:#f44336;color:white;border:none;padding:8px 12px; border-radius:6px; cursor:pointer">Keluar</button>
       <div id="jamSekarang" class="jam-atas"></div>
-    </div>
+    </div> -->
+    <br>
 
     <h2>Tambah Peserta</h2>
     <form id="formTambah">
@@ -558,11 +635,22 @@
     </form>
 
     <h2>Data Absensi</h2>
-    <div class="filter">
-      <input type="time" id="jamBatasTerlambat" value="08:00" style="margin-bottom:10px;">
-      <input type="text" id="cariInput" placeholder="Cari nama..." oninput="renderAbsensi()" />
+    <div class="filter"
+      style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <input type="time" id="jamBatasTerlambat" value="08:00" />
+        <input type="text" id="cariInput" placeholder="Cari nama..." oninput="renderAbsensi()" />
+      </div>
+      <div id="filterBMH" style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button id="bulanBtn">📅 Bulan</button>
+        <button id="mingguBtn" disabled>📆 Minggu</button>
+        <button id="hariBtn" disabled>📍 Hari</button>
+      </div>
     </div>
+
+
     <div class="rekap" id="rekapInfo"></div>
+    <div id="notifLengkap" style="margin-bottom:10px; font-weight:bold; color:green;"></div>
     <div class="table-responsive">
       <table>
         <thead>
@@ -585,7 +673,10 @@
       <button onclick="exportCSV()">Export ke CSV</button>
       <button onclick="hapusSemuaData()">Hapus Semua Data Absensi</button>
     </div>
-
+    <div style="margin-bottom:30px;">
+      <button onclick="downloadHariIni()">⬇️ Download Hari Ini</button>
+      <button onclick="hapusHariIni()">🗑️ Hapus Hari Ini</button>
+    </div>
     <h2>Daftar Peserta</h2>
     <ul id="daftarPeserta"></ul>
 
@@ -655,6 +746,8 @@
       </div>
     </div>
   </div>
+  </div>
+
 
 
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
@@ -677,10 +770,13 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    const database = getDatabase(app);
 
 
     const pesertaRef = ref(db, 'peserta');
     const absensiRef = ref(db, 'absensi');
+    let tanggalTerpilih = ""; // untuk menyimpan tanggal yang sedang difilter
+
 
     function showConfirm(pesan, onYes) {
       const modal = document.getElementById("confirmModal");
@@ -802,27 +898,33 @@
         data.waktuPulang ? new Date(data.waktuPulang).toISOString().slice(0, 16) : "";
 
       // Tombol Simpan
-      document.getElementById("simpanEditAbsen").onclick = async () => {
-        const statusBaru = document.getElementById("editStatusSelect").value;
-        const alasanBaru = document.getElementById("editAlasanSelect").value;
-        const waktuPulangBaru = document.getElementById("editWaktuPulang").value;
+      const statusBaru = document.getElementById("editStatusSelect").value;
+      const alasanBaru = document.getElementById("editAlasanSelect").value;
+      const waktuInput = document.getElementById("editWaktuPulang").value;
 
-        const dataFinal = {
-          ...data,
-          status: statusBaru,
-          alasan: alasanBaru,
-          waktuPulang: waktuPulangBaru ? new Date(waktuPulangBaru).toISOString() : data.waktuPulang
-        };
+      if (!waktuInput) {
+        showAlert("⚠️ Waktu pulang belum diisi!", "#ff9800");
+        return;
+      }
 
-        await set(ref(db, `absensi/${tanggal}/${nomor}`), dataFinal);
-        modal.style.display = "none";
-        showAlert("✅ Data absensi diperbarui", "#4CAF50");
+      const waktuISO = new Date(waktuInput).toISOString();
+
+      const dataFinal = {
+        ...data,
+        status: statusBaru,
+        alasan: alasanBaru,
+        waktuPulang: waktuISO
       };
 
-      // Tombol Batal
-      document.getElementById("batalEditAbsen").onclick = () => {
-        modal.style.display = "none";
-      };
+      await set(ref(db, `absensi/${tanggal}/${nomor}`), dataFinal);
+      modal.style.display = "none";
+      showAlert("✅ Data absensi berhasil diperbarui", "#4CAF50");
+
+    };
+
+    // Tombol Batal
+    document.getElementById("batalEditAbsen").onclick = () => {
+      modal.style.display = "none";
     };
 
 
@@ -915,14 +1017,30 @@
 
     // Tampilkan Absensi
     function renderAbsensi() {
-      onValue(absensiRef, (snapshot) => {
+      onValue(absensiRef, async (snapshot) => {
         const data = snapshot.val();
         const tbody = document.getElementById("absenBody");
         const cari = document.getElementById("cariInput").value.toLowerCase();
-        tbody.innerHTML = "";
-        const rekap = { Hadir: 0, Izin: 0, Sakit: 0, Bolos: 0 };
+        const notifBox = document.getElementById("notifLengkap");
 
+        tbody.innerHTML = "";
+        notifBox.textContent = "";
+
+        const pesertaSnap = await get(pesertaRef);
+        const totalPeserta = pesertaSnap.exists() ? Object.keys(pesertaSnap.val()).length : 0;
+
+        const now = new Date();
+        const hariIni = now.toISOString().slice(0, 10);
+        const dataHariIni = data ? data[hariIni] : null;
+        const jumlahAbsen = dataHariIni ? Object.keys(dataHariIni).length : 0;
+
+        if (jumlahAbsen === totalPeserta && totalPeserta > 0) {
+          notifBox.textContent = `✅ Absensi lengkap hari ini (${jumlahAbsen}/${totalPeserta})`;
+        }
+
+        const rekap = { Hadir: 0, Izin: 0, Sakit: 0, Bolos: 0 };
         let no = 1;
+
         for (let tanggal in data) {
           const perTanggal = data[tanggal];
           for (let nomor in perTanggal) {
@@ -930,8 +1048,8 @@
             if (!a || !a.nama || typeof a.nama !== "string") continue;
             if (!a.nama.toLowerCase().includes(cari)) continue;
 
-
             rekap[a.alasan]++;
+
             let statusClass = "status-tepat";
             if (a.status === "Terlambat") statusClass = "status-terlambat";
             else if (a.status === "Bolos") statusClass = "status-bolos";
@@ -940,39 +1058,200 @@
 
             const tr = document.createElement("tr");
             tr.innerHTML = `
-      <td>${no++}</td>
-      <td>${a.nama}</td>
-      <td>${a.nomor}</td>
-      <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
-      <td class="${statusClass}">${a.status || "-"}</td>
-      <td>${a.alasan}</td>
-      <td><span class="btn-edit" onclick="editAbsensi('${tanggal}', '${nomor}')">Edit</span></td>
-      <td>
-        <span class="btn-hapus" onclick="hapusAbsensi('${tanggal}', '${nomor}')">Hapus</span>
-      </td>
-    `;
+          <td>${no++}</td>
+          <td>${a.nama}</td>
+          <td>${a.nomor}</td>
+          <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
+          <td class="${statusClass}">${a.status || "-"}</td>
+          <td>${a.alasan}</td>
+          <td><span class="btn-edit" onclick="editAbsensi('${tanggal}', '${nomor}')">Edit</span></td>
+          <td><span class="btn-hapus" onclick="hapusAbsensi('${tanggal}', '${nomor}')">Hapus</span></td>
+        `;
             tbody.appendChild(tr);
           }
         }
 
-
-
         document.getElementById("rekapInfo").textContent =
           `Total: ${Object.keys(data || {}).length} | Hadir: ${rekap.Hadir} | Izin: ${rekap.Izin} | Sakit: ${rekap.Sakit} | Bolos: ${rekap.Bolos}`;
+
+        initBMH(data); // Tambahkan ini di akhir renderAbsensi()
+
       });
     }
 
-    window.hapusAbsensi = (tanggal, nomor) => {
-      showConfirm("Yakin ingin menghapus data absensi ini?", async () => {
-        await remove(ref(db, `absensi/${tanggal}/${nomor}`));
-        showAlert("Data absensi dihapus.", "#f44336");
+    let dataAbsensiGlobal = {};
+    let mingguAktif = [];
+    let hariAktif = [];
+
+    function initBMH(data) {
+      dataAbsensiGlobal = data;
+      const semuaTanggal = Object.keys(data).sort();
+
+      // Ambil tanggal terbaru
+      const tanggalTerbaru = semuaTanggal[semuaTanggal.length - 1];
+      renderAbsensiTanggal(tanggalTerbaru);
+
+      const bulanUnik = new Set(semuaTanggal.map(tgl => tgl.slice(0, 7)));
+
+      const bulanBtn = document.getElementById("bulanBtn");
+      const mingguBtn = document.getElementById("mingguBtn");
+      const hariBtn = document.getElementById("hariBtn");
+
+      bulanBtn.onclick = () => {
+        const list = Array.from(bulanUnik)
+          .map(t => {
+            const [y, m] = t.split("-");
+            return { value: t, label: getNamaBulan(Number(m) - 1) };
+          })
+          .sort((a, b) => b.value.localeCompare(a.value));
+
+        showDropdown(list.map(l => l.label), "Pilih Bulan", (selectedLabel) => {
+          const selectedBulan = list.find(l => l.label === selectedLabel).value;
+          bulanBtn.textContent = selectedLabel;
+
+          // ✅ Aktifkan tombol minggu
+          mingguBtn.disabled = false;
+          mingguBtn.textContent = "📆 Minggu";
+          hariBtn.disabled = true;
+          hariBtn.textContent = "📍 Hari";
+
+          const tanggalDalamBulan = semuaTanggal.filter(t => t.startsWith(selectedBulan));
+          const mingguMap = {};
+
+          tanggalDalamBulan.forEach(tgl => {
+            const week = getISOWeekNumber(new Date(tgl));
+            if (!mingguMap[week]) mingguMap[week] = [];
+            mingguMap[week].push(tgl);
+          });
+
+          mingguAktif = mingguMap;
+        });
+      };
+
+      mingguBtn.onclick = () => {
+        const daftarMinggu = Object.keys(mingguAktif);
+        showDropdown(daftarMinggu, "Pilih Minggu", (selected) => {
+          mingguBtn.textContent = `Minggu ${selected}`;
+          hariBtn.disabled = false;
+          hariBtn.textContent = "📍 Hari";
+          hariAktif = mingguAktif[selected];
+        });
+      };
+
+      hariBtn.onclick = () => {
+        showDropdown(hariAktif, "Pilih Hari", (selectedTanggal) => {
+          hariBtn.textContent = new Date(selectedTanggal).toLocaleDateString("id-ID", {
+            weekday: 'long'
+          });
+          renderAbsensiTanggal(selectedTanggal);
+        });
+      };
+    }
+
+    function renderAbsensiTanggal(tanggal) {
+      tanggalTerpilih = tanggal; // simpan tanggal yang sedang dilihat
+      const tbody = document.getElementById("absenBody");
+      const notifBox = document.getElementById("notifLengkap");
+      const cari = document.getElementById("cariInput").value.toLowerCase();
+
+      tbody.innerHTML = "";
+      notifBox.textContent = "";
+
+      const data = dataAbsensiGlobal[tanggal];
+      if (!data) return;
+
+      let no = 1;
+      get(pesertaRef).then(snap => {
+        const totalPeserta = snap.exists() ? Object.keys(snap.val()).length : 0;
+        const jumlahAbsen = Object.keys(data).length;
+
+        if (jumlahAbsen === totalPeserta && totalPeserta > 0) {
+          notifBox.textContent = `✅ Absensi lengkap hari ini (${jumlahAbsen}/${totalPeserta})`;
+        }
+
+        for (let nomor in data) {
+          const a = data[nomor];
+          if (!a || !a.nama || typeof a.nama !== "string") continue;
+          if (!a.nama.toLowerCase().includes(cari)) continue;
+
+          let statusClass = "status-tepat";
+          if (a.status === "Terlambat") statusClass = "status-terlambat";
+          else if (a.status === "Bolos") statusClass = "status-bolos";
+          else if (a.status === "Izin") statusClass = "status-izin";
+          else if (a.status === "Sakit") statusClass = "status-sakit";
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+        <td>${no++}</td>
+        <td>${a.nama}</td>
+        <td>${a.nomor}</td>
+        <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
+        <td class="${statusClass}">${a.status || "-"}</td>
+        <td>${a.alasan}</td>
+        <td><span class="btn-edit" onclick="editAbsensi('${tanggal}', '${nomor}')">Edit</span></td>
+        <td><span class="btn-hapus" onclick="hapusAbsensi('${tanggal}', '${nomor}')">Hapus</span></td>
+      `;
+          tbody.appendChild(tr);
+        }
       });
-    };
+    }
 
+    function getNamaBulan(bulanIndex) {
+      const bulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      return bulan[bulanIndex];
+    }
 
-    function keluar() {
-      localStorage.removeItem("isAdmin");
-      location.href = "index.html";
+    function showDropdown(list, title, onSelect) {
+      const modal = document.createElement("div");
+      modal.style.position = "fixed";
+      modal.style.top = "50%";
+      modal.style.left = "50%";
+      modal.style.transform = "translate(-50%, -50%)";
+      modal.style.background = "white";
+      modal.style.padding = "20px";
+      modal.style.borderRadius = "8px";
+      modal.style.boxShadow = "0 4px 16px rgba(0,0,0,0.2)";
+      modal.style.zIndex = 9999;
+
+      modal.innerHTML = `<h3 style="margin-bottom: 12px;">${title}</h3>`;
+
+      list.forEach(item => {
+        const btn = document.createElement("button");
+        btn.textContent = item;
+        btn.style.margin = "5px";
+        btn.style.padding = "8px 12px";
+        btn.style.border = "none";
+        btn.style.background = "#4caf50";
+        btn.style.color = "#fff";
+        btn.style.borderRadius = "6px";
+        btn.style.cursor = "pointer";
+        btn.onclick = () => {
+          document.body.removeChild(modal);
+          onSelect(item);
+        };
+        modal.appendChild(btn);
+      });
+
+      const cancelBtn = document.createElement("button");
+      cancelBtn.textContent = "Batal";
+      cancelBtn.style.marginTop = "10px";
+      cancelBtn.style.display = "block";
+      cancelBtn.style.width = "100%";
+      cancelBtn.style.padding = "8px";
+      cancelBtn.style.border = "none";
+      cancelBtn.style.background = "#ccc";
+      cancelBtn.style.color = "#000";
+      cancelBtn.style.borderRadius = "6px";
+      cancelBtn.onclick = () => document.body.removeChild(modal);
+      modal.appendChild(cancelBtn);
+
+      document.body.appendChild(modal);
+    }
+
+    function getWeekOfMonth(date) {
+      const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+      const dayOfWeek = (firstDay.getDay() + 6) % 7; // konversi Minggu (0) jadi 6
+      return Math.ceil((date.getDate() + dayOfWeek) / 7);
     }
 
     function formatTanggal(isoString) {
@@ -989,6 +1268,25 @@
       });
     }
 
+    function getISOWeekNumber(date) {
+      const tmp = new Date(date.getTime());
+      tmp.setHours(0, 0, 0, 0);
+      tmp.setDate(tmp.getDate() + 3 - ((tmp.getDay() + 6) % 7));
+      const week1 = new Date(tmp.getFullYear(), 0, 4);
+      return 1 + Math.round(((tmp.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7);
+    }
+
+    window.hapusAbsensi = (tanggal, nomor) => {
+      showConfirm("Yakin ingin menghapus data absensi ini?", async () => {
+        await remove(ref(db, `absensi/${tanggal}/${nomor}`));
+        showAlert("Data absensi dihapus.", "#f44336");
+      });
+    };
+
+    function keluar() {
+      localStorage.removeItem("isAdmin");
+      location.href = "index.html";
+    }
 
     window.exportCSV = async () => {
       const snapshot = await get(absensiRef);
@@ -1018,7 +1316,50 @@
       XLSX.writeFile(workbook, "data_absensi.xlsx");
     };
 
+    function downloadHariIni() {
+      if (!tanggalTerpilih || !dataAbsensiGlobal[tanggalTerpilih]) {
+        showAlert("Pilih tanggal terlebih dahulu!", "#ff9800");
+        return;
+      }
 
+      const data = dataAbsensiGlobal[tanggalTerpilih];
+      const rows = [["Tanggal", "Nomor", "Nama", "Waktu Pulang", "Status", "Alasan"]];
+
+      for (let nomor in data) {
+        const a = data[nomor];
+        rows.push([
+          tanggalTerpilih,
+          a.nomor || "-",
+          a.nama || "-",
+          formatTanggal(a.waktuPulang),
+          a.status || "-",
+          a.alasan || "-"
+        ]);
+      }
+
+      const worksheet = XLSX.utils.aoa_to_sheet(rows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Absensi");
+
+      XLSX.writeFile(workbook, `absensi-${tanggalTerpilih}.xlsx`);
+    }
+
+    function hapusHariIni() {
+      if (!tanggalTerpilih || !dataAbsensiGlobal[tanggalTerpilih]) {
+        showAlert("⚠️ Pilih tanggal terlebih dahulu!", "#ff9800");
+        return;
+      }
+
+      showConfirm(`Yakin ingin menghapus semua absensi tanggal ${tanggalTerpilih}?`, async () => {
+        try {
+          await remove(ref(db, `absensi/${tanggalTerpilih}`));
+          showAlert(`✅ Data absensi tanggal ${tanggalTerpilih} berhasil dihapus.`, "#4caf50");
+        } catch (error) {
+          console.error("❌ Gagal hapus:", error);
+          showAlert(`❌ Gagal menghapus data: ${error.message}`, "#f44336");
+        }
+      });
+    }
 
     // Hapus semua
     window.hapusSemuaData = () => {
@@ -1117,6 +1458,10 @@
     renderAbsensi();
     window.keluar = keluar;
     window.renderAbsensi = renderAbsensi;
+    window.downloadHariIni = downloadHariIni;
+    window.hapusHariIni = hapusHariIni;
+
+
 
   </script>
 

@@ -18,6 +18,12 @@
             color: #333;
         }
 
+        /* CONTAINER */
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
         *,
         *::before,
         *::after {
@@ -74,12 +80,12 @@
         }
 
         .kembali-btn {
-            background: none;
+            background: #f44336;
+            color: white;
             border: none;
-            color: black;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
+            padding: 6px 7px;
+            border-radius: 6px;
+            cursor: pointer
         }
 
         .jam {
@@ -275,6 +281,10 @@
 
         /* Tablet dan ke bawah (max-width: 768px) */
         @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+            }
+
             .wrap-container {
                 flex-direction: column;
                 align-items: center;
@@ -406,62 +416,65 @@
 
 <body>
 
-    <div class="header-container">
-        <div class="left">
-            <button class="kembali-btn" onclick="location.href='index.html'">← Kembali</button>
-        </div>
-        <div class="center">
-            <h2>Form Absensi Peserta</h2>
-        </div>
-        <div class="right">
-            <div class="jam" id="jamSekarang">--:--:--</div>
-        </div>
-    </div>
+    <div class="container">
 
-
-
-    <div class="wrap-container">
-        <div class="form-kiri">
-            <form id="formAbsen">
-                <input type="text" id="nomorInput" placeholder="Masukkan Nomor Anda" required>
-                <select id="alasanInput">
-                    <option value="Hadir">Hadir</option>
-                    <option value="Sakit">Sakit</option>
-                    <option value="Izin">Izin</option>
-                    <option value="Bolos">Bolos</option>
-                </select>
-
-                <div id="previewPeserta" class="preview-foto"></div>
-
-                <button type="button" id="btnMasuk">Absen Masuk</button>
-                <button type="button" id="btnPulang">Absen Pulang</button>
-                <div class="status" id="statusPesan"></div>
-            </form>
+        <div class="header-container">
+            <div class="left">
+                <button class="kembali-btn" onclick="location.href='index.html'">Kembali</button>
+            </div>
+            <div class="center">
+                <h2>Form Absensi Peserta</h2>
+            </div>
+            <div class="right">
+                <div class="jam" id="jamSekarang">--:--:--</div>
+            </div>
         </div>
 
-        <div class="daftar-kanan">
-            <h3>Daftar Peserta</h3>
-            <ul id="daftarPeserta"></ul>
+
+
+        <div class="wrap-container">
+            <div class="form-kiri">
+                <form id="formAbsen">
+                    <input type="text" id="nomorInput" placeholder="Masukkan Nomor Anda" required>
+                    <select id="alasanInput">
+                        <option value="Hadir">Hadir</option>
+                        <option value="Sakit">Sakit</option>
+                        <option value="Izin">Izin</option>
+                        <option value="Bolos">Bolos</option>
+                    </select>
+
+                    <div id="previewPeserta" class="preview-foto"></div>
+
+                    <button type="button" id="btnMasuk">Absen Masuk</button>
+                    <button type="button" id="btnPulang">Absen Pulang</button>
+                    <div class="status" id="statusPesan"></div>
+                </form>
+            </div>
+
+            <div class="daftar-kanan">
+                <h3>Daftar Peserta</h3>
+                <ul id="daftarPeserta"></ul>
+            </div>
         </div>
-    </div>
 
-    <h2>Data Absensi</h2>
-    <input type="text" id="cariInput" placeholder="Cari nama..." oninput="renderTabel()">
+        <h2>Data Absensi</h2>
+        <input type="text" id="cariInput" placeholder="Cari nama..." oninput="renderTabel()">
 
-    <div class="tabel-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Nama</th>
-                    <th>Nomor</th>
-                    <th>Pulang</th>
-                    <th>Status</th>
-                    <th>Alasan</th>
-                </tr>
-            </thead>
-            <tbody id="absenBody"></tbody>
-        </table>
+        <div class="tabel-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama</th>
+                        <th>Nomor</th>
+                        <th>Pulang</th>
+                        <th>Status</th>
+                        <th>Alasan</th>
+                    </tr>
+                </thead>
+                <tbody id="absenBody"></tbody>
+            </table>
+        </div>
     </div>
 
     <script type="module">
@@ -598,10 +611,19 @@
                     });
                 }
 
-                statusPesan.textContent = `✅ Absen pulang berhasil (${statusPulang})`;
-                statusPesan.style.color = statusPulang === "Pulang" ? "green" :
-                    statusPulang === "Terlambat" ? "orange" :
-                        "red";
+                const statusMap = {
+                    "Tepat": { teks: "✅ Pulang tepat waktu!", warna: "green" },
+                    "Terlambat": { teks: "⚠️ Pulang terlambat!", warna: "orange" },
+                    "Izin": { teks: "🟡 Pulang karena izin", warna: "#f57c00" },
+                    "Sakit": { teks: "🟡 Pulang karena sakit", warna: "#f57c00" },
+                    "Bolos": { teks: "❌ Bolos! Pulang terlalu cepat", warna: "red" },
+                };
+
+                const statusInfo = statusMap[statusPulang] || { teks: `✅ Absen pulang berhasil (${statusPulang})`, warna: "black" };
+
+                statusPesan.textContent = statusInfo.teks;
+                statusPesan.style.color = statusInfo.warna;
+
                 setTimeout(() => {
                     statusPesan.textContent = "";
                 }, 3000);
@@ -618,26 +640,47 @@
             const tbody = document.getElementById("absenBody");
             const q = document.getElementById("cariInput").value.toLowerCase();
             tbody.innerHTML = "";
+
+            const pesertaSnap = await get(pesertaRef);
             const snap = await get(absensiRef);
-            if (!snap.exists()) return;
+            if (!snap.exists() || !pesertaSnap.exists()) return;
+
+            const semuaPeserta = pesertaSnap.val();
+            const totalPeserta = Object.keys(semuaPeserta).length;
+
+            const now = new Date();
+            const tanggalHariIni = now.toISOString().slice(0, 10);
+
+            const dataHariIni = snap.val()[tanggalHariIni];
+            if (!dataHariIni) return;
 
             let no = 1;
-            Object.entries(snap.val()).forEach(([tgl, group]) => {
-                Object.entries(group).forEach(([nomor, a]) => {
-                    if (!a.nama.toLowerCase().includes(q)) return;
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = `
-          <td>${no++}</td>
-          <td>${a.nama}</td>
-          <td>${a.nomor}</td>     
-          <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
-          <td class="${a.status === 'Terlambat' ? 'status-terlambat' : a.status === 'Bolos' ? 'status-bolos' : a.status === 'Izin' ? 'status-izin' : a.status === 'Sakit' ? 'status-sakit' : 'status-tepat'}"> ${a.status || "-"}</td>
-          <td>${a.alasan}</td>
-        `;
-                    tbody.appendChild(tr);
-                });
+            Object.entries(dataHariIni).forEach(([nomor, a]) => {
+                if ((a.nama || "").toLowerCase().includes(q) === false) return;
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+      <td>${no++}</td>
+      <td>${a.nama}</td>
+      <td>${a.nomor}</td>     
+      <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
+      <td class="${a.status === 'Terlambat' ? 'status-terlambat' : a.status === 'Bolos' ? 'status-bolos' : a.status === 'Izin' ? 'status-izin' : a.status === 'Sakit' ? 'status-sakit' : 'status-tepat'}"> ${a.status || "-"}</td>
+      <td>${a.alasan}</td>
+    `;
+                tbody.appendChild(tr);
             });
+
+            // ✅ Tambahkan informasi "absensi lengkap"
+            const jumlahAbsen = Object.keys(dataHariIni).length;
+            if (jumlahAbsen === totalPeserta) {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+      <td colspan="6" style="text-align:center; font-weight:bold; color:green;">
+        ✅ Absensi lengkap hari ini (${jumlahAbsen}/${totalPeserta})
+      </td>`;
+                tbody.appendChild(tr);
+            }
         }
+
         // <td>${a.waktuMasuk ? new Date(a.waktuMasuk).toLocaleString("id-ID") : "-"}</td>
         function updateJam() {
             const now = new Date();
