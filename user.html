@@ -651,36 +651,39 @@
     const now = new Date();
     const tanggalHariIni = now.toISOString().slice(0, 10);
     const dataHariIni = snap.val()[tanggalHariIni];
-
     if (!dataHariIni) return;
 
-    let no = 1;
-    let jumlahAbsen = 0;
+    const jumlahAbsen = Object.keys(dataHariIni).length;
 
-    Object.entries(dataHariIni).forEach(([nomor, a]) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-      <td>${no++}</td>
-      <td>${a.nama}</td>
-      <td>${a.nomor}</td>     
-      <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
-      <td class="${a.status === 'Terlambat' ? 'status-terlambat' : a.status === 'Bolos' ? 'status-bolos' : a.status === 'Izin' ? 'status-izin' : a.status === 'Sakit' ? 'status-sakit' : 'status-tepat'}"> ${a.status || "-"}</td>
-      <td>${a.alasan}</td>
-    `;
-        tbody.appendChild(tr);
-        jumlahAbsen++;
-    });
-
-    // Tampilkan info bahwa absensi hari ini sudah lengkap
     if (jumlahAbsen === totalPeserta) {
+        // ❌ Semua sudah absen → tampilkan 1 baris saja
         const tr = document.createElement("tr");
         tr.innerHTML = `
-        <td colspan="6" style="text-align:center; font-weight:bold; color:green;">
-            ✅ Absensi lengkap hari ini (${jumlahAbsen}/${totalPeserta})
-        </td>`;
+            <td colspan="6" style="text-align:center; font-weight:bold; color:green;">
+                ✅ Absensi lengkap hari ini (${jumlahAbsen}/${totalPeserta})
+            </td>`;
         tbody.appendChild(tr);
+        return; // keluar dari fungsi, tidak render baris peserta
     }
+
+    // Jika belum semua absen → tampilkan data peserta
+    let no = 1;
+    Object.entries(dataHariIni).forEach(([nomor, a]) => {
+        if (q && (a.nama || "").toLowerCase().includes(q) === false) return;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+        <td>${no++}</td>
+        <td>${a.nama}</td>
+        <td>${a.nomor}</td>     
+        <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
+        <td class="${a.status === 'Terlambat' ? 'status-terlambat' : a.status === 'Bolos' ? 'status-bolos' : a.status === 'Izin' ? 'status-izin' : a.status === 'Sakit' ? 'status-sakit' : 'status-tepat'}">${a.status || "-"}</td>
+        <td>${a.alasan}</td>
+        `;
+        tbody.appendChild(tr);
+    });
 }
+
 
         // <td>${a.waktuMasuk ? new Date(a.waktuMasuk).toLocaleString("id-ID") : "-"}</td>
         function updateJam() {
