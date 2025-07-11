@@ -437,6 +437,34 @@
       border-radius: 6px;
     }
 
+    .filter-button {
+      background-color: #e0e0e0;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: normal;
+    }
+
+    .filter-button:hover {
+      background-color: #ccc;
+    }
+
+    .filter-button.active {
+      background-color: #4caf50;
+      color: white;
+      font-weight: bold;
+    }
+
+    .filter-reset {
+      background-color: #607d8b;
+      color: white;
+    }
+
+    .filter-reset:hover {
+      background-color: #455a64;
+    }
 
     .modal-content input {
       width: 100%;
@@ -551,6 +579,27 @@
       }
     }
 
+    @media (max-width: 600px) {
+      .filter-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filter-row>div {
+        width: 100%;
+      }
+
+      .filter-row input,
+      .filter-row button {
+        width: 75%;
+        margin-top: 8px;
+      }
+
+      .filter-row button {
+        margin-left: 50px;
+      }
+    }
+
     @media (max-width:480px) {
       h2 {
         font-size: 1.4rem;
@@ -635,16 +684,20 @@
     </form>
 
     <h2>Data Absensi</h2>
-    <div class="filter"
-      style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+
+    <div class="filter filter-row"
+      style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 16px;">
+
+      <div style="display: flex; gap: 10px; ">
         <input type="time" id="jamBatasTerlambat" value="08:00" />
         <input type="text" id="cariInput" placeholder="Cari nama..." oninput="renderAbsensi()" />
       </div>
+
       <div id="filterBMH" style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <button id="bulanBtn">📅 Bulan</button>
-        <button id="mingguBtn" disabled>📆 Minggu</button>
-        <button id="hariBtn" disabled>📍 Hari</button>
+        <button id="bulanBtn" class="filter-button">Bulan</button>
+        <button id="mingguBtn" class="filter-button" disabled>Minggu</button>
+        <button id="hariBtn" class="filter-button" disabled>Hari</button>
+        <button id="resetHariBtn" class="filter-button filter-reset">🔙 Hari Ini</button>
       </div>
     </div>
 
@@ -669,14 +722,17 @@
       </table>
     </div>
 
-    <div style="margin-bottom:30px;">
-      <button onclick="exportCSV()">Export ke CSV</button>
-      <button onclick="hapusSemuaData()">Hapus Semua Data Absensi</button>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+      <button onclick="exportCSV()">Download Full Data</button>
+      <button onclick="downloadHariIni()">Download Hari Ini</button>
+
     </div>
-    <div style="margin-bottom:30px;">
-      <button onclick="downloadHariIni()">⬇️ Download Hari Ini</button>
-      <button onclick="hapusHariIni()">🗑️ Hapus Hari Ini</button>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
+      <button onclick="hapusSemuaData()">Hapus Semua Absensi</button>
+      <button onclick="hapusHariIni()">Hapus Hari Ini</button>
     </div>
+
     <h2>Daftar Peserta</h2>
     <ul id="daftarPeserta"></ul>
 
@@ -1016,67 +1072,75 @@
     };
 
     // Tampilkan Absensi
-    function renderAbsensi() {
-      onValue(absensiRef, async (snapshot) => {
-        const data = snapshot.val();
-        const tbody = document.getElementById("absenBody");
-        const cari = document.getElementById("cariInput").value.toLowerCase();
-        const notifBox = document.getElementById("notifLengkap");
+    async function renderAbsensi() {
+      const tbody = document.getElementById("absenBody");
+      const cari = document.getElementById("cariInput").value.toLowerCase();
+      const notifBox = document.getElementById("notifLengkap");
 
-        tbody.innerHTML = "";
-        notifBox.textContent = "";
+      tbody.innerHTML = "";
+      notifBox.textContent = "";
 
-        const pesertaSnap = await get(pesertaRef);
-        const totalPeserta = pesertaSnap.exists() ? Object.keys(pesertaSnap.val()).length : 0;
+      const pesertaSnap = await get(pesertaRef);
+      const totalPeserta = pesertaSnap.exists() ? Object.keys(pesertaSnap.val()).length : 0;
 
-        const now = new Date();
-        const hariIni = now.toISOString().slice(0, 10);
-        const dataHariIni = data ? data[hariIni] : null;
-        const jumlahAbsen = dataHariIni ? Object.keys(dataHariIni).length : 0;
+      const snapshot = await get(absensiRef);
+      const allData = snapshot.val();
+      if (!allData) return;
 
-        if (jumlahAbsen === totalPeserta && totalPeserta > 0) {
-          notifBox.textContent = `✅ Absensi lengkap hari ini (${jumlahAbsen}/${totalPeserta})`;
+      const now = new Date();
+      const tanggalNow = now.toISOString().slice(0, 10);
+      const batasTanggal = new Date(now);
+      batasTanggal.setDate(now.getDate() - 7); // 7 hari terakhir
+
+      const dataTerbatas = {};
+      for (let tgl in allData) {
+        if (new Date(tgl) >= batasTanggal) {
+          dataTerbatas[tgl] = allData[tgl];
         }
+      }
 
-        const rekap = { Hadir: 0, Izin: 0, Sakit: 0, Bolos: 0 };
-        let no = 1;
+      const dataHariIni = dataTerbatas[tanggalNow] || null;
+      const jumlahAbsen = dataHariIni ? Object.keys(dataHariIni).length : 0;
+      if (jumlahAbsen === totalPeserta && totalPeserta > 0) {
+        notifBox.textContent = `✅ Absensi lengkap hari ini (${jumlahAbsen}/${totalPeserta})`;
+      }
 
-        for (let tanggal in data) {
-          const perTanggal = data[tanggal];
-          for (let nomor in perTanggal) {
-            const a = perTanggal[nomor];
-            if (!a || !a.nama || typeof a.nama !== "string") continue;
-            if (!a.nama.toLowerCase().includes(cari)) continue;
+      const rekap = { Hadir: 0, Izin: 0, Sakit: 0, Bolos: 0 };
+      let no = 1;
 
-            rekap[a.alasan]++;
+      for (let tanggal in dataTerbatas) {
+        for (let nomor in dataTerbatas[tanggal]) {
+          const a = dataTerbatas[tanggal][nomor];
+          if (!a || !a.nama || typeof a.nama !== "string") continue;
+          if (!a.nama.toLowerCase().includes(cari)) continue;
 
-            let statusClass = "status-tepat";
-            if (a.status === "Terlambat") statusClass = "status-terlambat";
-            else if (a.status === "Bolos") statusClass = "status-bolos";
-            else if (a.status === "Izin") statusClass = "status-izin";
-            else if (a.status === "Sakit") statusClass = "status-sakit";
+          rekap[a.alasan]++;
 
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-          <td>${no++}</td>
-          <td>${a.nama}</td>
-          <td>${a.nomor}</td>
-          <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
-          <td class="${statusClass}">${a.status || "-"}</td>
-          <td>${a.alasan}</td>
-          <td><span class="btn-edit" onclick="editAbsensi('${tanggal}', '${nomor}')">Edit</span></td>
-          <td><span class="btn-hapus" onclick="hapusAbsensi('${tanggal}', '${nomor}')">Hapus</span></td>
-        `;
-            tbody.appendChild(tr);
-          }
+          let statusClass = "status-tepat";
+          if (a.status === "Terlambat") statusClass = "status-terlambat";
+          else if (a.status === "Bolos") statusClass = "status-bolos";
+          else if (a.status === "Izin") statusClass = "status-izin";
+          else if (a.status === "Sakit") statusClass = "status-sakit";
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+        <td>${no++}</td>
+        <td>${a.nama}</td>
+        <td>${a.nomor}</td>
+        <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
+        <td class="${statusClass}">${a.status || "-"}</td>
+        <td>${a.alasan}</td>
+        <td><span class="btn-edit" onclick="editAbsensi('${tanggal}', '${nomor}')">Edit</span></td>
+        <td><span class="btn-hapus" onclick="hapusAbsensi('${tanggal}', '${nomor}')">Hapus</span></td>
+      `;
+          tbody.appendChild(tr);
         }
+      }
 
-        document.getElementById("rekapInfo").textContent =
-          `Total: ${Object.keys(data || {}).length} | Hadir: ${rekap.Hadir} | Izin: ${rekap.Izin} | Sakit: ${rekap.Sakit} | Bolos: ${rekap.Bolos}`;
+      document.getElementById("rekapInfo").textContent =
+        `Total Tanggal: ${Object.keys(dataTerbatas).length} | Hadir: ${rekap.Hadir} | Izin: ${rekap.Izin} | Sakit: ${rekap.Sakit} | Bolos: ${rekap.Bolos}`;
 
-        initBMH(data); // Tambahkan ini di akhir renderAbsensi()
-
-      });
+      initBMH(dataTerbatas); // Tetap bisa pakai filter BMH, tapi dengan data terbatas
     }
 
     let dataAbsensiGlobal = {};
@@ -1088,8 +1152,28 @@
       const semuaTanggal = Object.keys(data).sort();
 
       // Ambil tanggal terbaru
-      const tanggalTerbaru = semuaTanggal[semuaTanggal.length - 1];
-      renderAbsensiTanggal(tanggalTerbaru);
+      // Cek apakah hari ini ada di data
+      const now = new Date();
+      const hariIni = now.toISOString().slice(0, 10);
+
+      if (data[hariIni]) {
+        renderAbsensiTanggal(hariIni);
+      } else {
+        tanggalTerpilih = "";
+        document.getElementById("absenBody").innerHTML = "";
+        document.getElementById("notifLengkap").textContent = "📭 Tidak ada data absensi hari ini.";
+
+        document.getElementById("bulanBtn").textContent = "Bulan";
+        document.getElementById("mingguBtn").textContent = "Minggu";
+        document.getElementById("hariBtn").textContent = "Hari";
+        document.getElementById("bulanBtn").classList.remove("active");
+        document.getElementById("mingguBtn").classList.remove("active");
+        document.getElementById("hariBtn").classList.remove("active");
+        document.getElementById("mingguBtn").disabled = true;
+        document.getElementById("hariBtn").disabled = true;
+      }
+
+
 
       const bulanUnik = new Set(semuaTanggal.map(tgl => tgl.slice(0, 7)));
 
@@ -1109,11 +1193,15 @@
           const selectedBulan = list.find(l => l.label === selectedLabel).value;
           bulanBtn.textContent = selectedLabel;
 
-          // ✅ Aktifkan tombol minggu
+          // ✅ Highlight
+          bulanBtn.classList.add("active");
+          mingguBtn.classList.remove("active");
+          hariBtn.classList.remove("active");
+
           mingguBtn.disabled = false;
-          mingguBtn.textContent = "📆 Minggu";
+          mingguBtn.textContent = "Minggu";
           hariBtn.disabled = true;
-          hariBtn.textContent = "📍 Hari";
+          hariBtn.textContent = "Hari";
 
           const tanggalDalamBulan = semuaTanggal.filter(t => t.startsWith(selectedBulan));
           const mingguMap = {};
@@ -1128,12 +1216,15 @@
         });
       };
 
+
       mingguBtn.onclick = () => {
         const daftarMinggu = Object.keys(mingguAktif);
         showDropdown(daftarMinggu, "Pilih Minggu", (selected) => {
           mingguBtn.textContent = `Minggu ${selected}`;
           hariBtn.disabled = false;
-          hariBtn.textContent = "📍 Hari";
+          mingguBtn.classList.add("active");
+          hariBtn.classList.remove("active");
+          hariBtn.textContent = "Hari";
           hariAktif = mingguAktif[selected];
         });
       };
@@ -1144,8 +1235,28 @@
             weekday: 'long'
           });
           renderAbsensiTanggal(selectedTanggal);
+          hariBtn.classList.add("active")
         });
       };
+    }
+
+    function resetKeHariIni() {
+      const semuaTanggal = Object.keys(dataAbsensiGlobal).sort();
+      const tanggalTerbaru = semuaTanggal[semuaTanggal.length - 1];
+
+      renderAbsensiTanggal(tanggalTerbaru);
+
+      // Reset tombol
+      document.getElementById("bulanBtn").textContent = "Bulan";
+      document.getElementById("mingguBtn").textContent = "Minggu";
+      document.getElementById("hariBtn").textContent = "Hari";
+
+      document.getElementById("bulanBtn").classList.remove("active");
+      document.getElementById("mingguBtn").classList.remove("active");
+      document.getElementById("hariBtn").classList.remove("active");
+
+      document.getElementById("mingguBtn").disabled = true;
+      document.getElementById("hariBtn").disabled = true;
     }
 
     function renderAbsensiTanggal(tanggal) {
@@ -1460,6 +1571,7 @@
     window.renderAbsensi = renderAbsensi;
     window.downloadHariIni = downloadHariIni;
     window.hapusHariIni = hapusHariIni;
+    document.getElementById("resetHariBtn").onclick = resetKeHariIni;
 
 
 
