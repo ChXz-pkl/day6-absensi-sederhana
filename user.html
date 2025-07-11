@@ -643,7 +643,11 @@
 
     const pesertaSnap = await get(pesertaRef);
     const snap = await get(absensiRef);
-    if (!snap.exists() || !pesertaSnap.exists()) return;
+    if (!snap.exists() || !pesertaSnap.exists()) {
+        tbody.innerHTML = `
+            <tr><td colspan="6" style="text-align:center; color:gray;">Belum ada data peserta atau absensi.</td></tr>`;
+        return;
+    }
 
     const semuaPeserta = pesertaSnap.val();
     const totalPeserta = Object.keys(semuaPeserta).length;
