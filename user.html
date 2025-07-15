@@ -571,19 +571,31 @@
                 const jamPulang = new Date(now);
                 const jam = jamPulang.getHours();
                 const menit = jamPulang.getMinutes();
-
+ const hari = jamPulang.getDay(); // 0 = Minggu, 1 = Senin, ..., 2 = Selasa, ..., 6 = Sabtu
                 let statusPulang = "Terlambat Pulang";
 
                 if (alasan === "Sakit" || alasan === "Izin") {
                     statusPulang = alasan; // langsung jadi 'Sakit' atau 'Izin'
-                } else {
-                    if (jam < 16) {
-                        statusPulang = "Bolos";
-                    } else if (jam === 16 && menit <= 30) {
-                        statusPulang = "Tepat";
-                    } else {
-                        statusPulang = "Terlambat";
-                    }
+                }
+
+if (hari === 2) { // Hari Selasa
+    if (jam < 15 || (jam === 15 && menit < 30)) {
+        statusPulang = "Bolos";
+    } else if (jam === 15 && menit <= 30) {
+        statusPulang = "Tepat";
+    } else {
+        statusPulang = "Terlambat";
+    }
+} else {
+    if (jam < 16) {
+        statusPulang = "Bolos";
+    } else if (jam === 16 && menit <= 30) {
+        statusPulang = "Tepat";
+    } else {
+        statusPulang = "Terlambat";
+    }
+}
+
                 }
 
 
