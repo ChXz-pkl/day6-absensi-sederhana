@@ -575,28 +575,27 @@
                 let statusPulang = "Terlambat Pulang";
 
                 if (alasan === "Sakit" || alasan === "Izin") {
-                    statusPulang = alasan; // langsung jadi 'Sakit' atau 'Izin'
-                }
-
-if (hari === 2) { // Hari Selasa
-    if (jam < 15 || (jam === 15 && menit < 30)) {
-        statusPulang = "Bolos";
-    } else if (jam === 15 && menit <= 30) {
-        statusPulang = "Tepat";
-    } else {
-        statusPulang = "Terlambat";
-    }
+    statusPulang = alasan; // langsung jadi 'Sakit' atau 'Izin'
 } else {
-    if (jam < 16) {
-        statusPulang = "Bolos";
-    } else if (jam === 16 && menit <= 30) {
-        statusPulang = "Tepat";
+    if (hari === 2) { // Hari Selasa
+        if (jam < 15 || (jam === 15 && menit < 30)) {
+            statusPulang = "Bolos";
+        } else if (jam === 15 && menit <= 30) {
+            statusPulang = "Tepat";
+        } else {
+            statusPulang = "Terlambat";
+        }
     } else {
-        statusPulang = "Terlambat";
+        if (jam < 16) {
+            statusPulang = "Bolos";
+        } else if (jam === 16 && menit <= 30) {
+            statusPulang = "Tepat";
+        } else {
+            statusPulang = "Terlambat";
+        }
     }
 }
 
-                }
 
 
 
