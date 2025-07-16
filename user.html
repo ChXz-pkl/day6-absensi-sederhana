@@ -535,12 +535,12 @@
                 : `<div><strong>${p.nama}</strong></div>`;
             setTimeout(() => preview.innerHTML = "", 2500);
 
-            const jamSekarang = new Date(); // <- waktu lokal
-            const now = jamSekarang.toISOString(); // <- disimpan dalam format ISO
+            const now = new Date().toISOString();
             const tanggal = now.slice(0, 10);
             const todayRef = ref(db, `absensi/${tanggal}/${nomor}`);
             const todaySnap = await get(todayRef);
             const batasTerlambat = localStorage.getItem("jamBatas") || "08:00";
+
 
             // ===== ABSEN MASUK =====
             if (tipe === "masuk") {
@@ -568,32 +568,25 @@
 
             // ===== ABSEN PULANG =====
             else if (tipe === "pulang") {
-                const jam = jamSekarang.getHours();
-                const menit = jamSekarang.getMinutes();
-                const hari = jamSekarang.getDay(); // 0 = Minggu, 1 = Senin, ..., 2 = Selasa, ..., 6 = Sabtu
+                const jamPulang = new Date(now);
+                const jam = jamPulang.getHours();
+                const menit = jamPulang.getMinutes();
+
                 let statusPulang = "Terlambat Pulang";
 
                 if (alasan === "Sakit" || alasan === "Izin") {
-                    statusPulang = alasan;
+                    statusPulang = alasan; // langsung jadi 'Sakit' atau 'Izin'
                 } else {
-                    if (hari === 2) { // Selasa
-                        if (jam < 15 || (jam === 15 && menit < 30)) {
-                            statusPulang = "Bolos";
-                        } else if (jam === 15 && menit <= 30) {
-                            statusPulang = "Tepat";
-                        } else {
-                            statusPulang = "Terlambat";
-                        }
+                    if (jam < 16) {
+                        statusPulang = "Bolos";
+                    } else if (jam === 16 && menit <= 30) {
+                        statusPulang = "Tepat";
                     } else {
-                        if (jam < 16) {
-                            statusPulang = "Bolos";
-                        } else if (jam === 16 && menit <= 30) {
-                            statusPulang = "Tepat";
-                        } else {
-                            statusPulang = "Terlambat";
-                        }
+                        statusPulang = "Terlambat";
                     }
                 }
+
+
 
                 if (!todaySnap.exists()) {
                     await set(todayRef, {
@@ -635,6 +628,7 @@
                     statusPesan.textContent = "";
                 }, 2500);
             }
+
 
             document.getElementById("formAbsen").reset();
             renderTabel();
