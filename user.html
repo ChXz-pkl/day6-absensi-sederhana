@@ -701,20 +701,22 @@
 
             // ⏳ Jika belum lengkap, tampilkan data peserta
             let no = 1;
-            Object.entries(dataHariIni).forEach(([nomor, a]) => {
-                if (q && (a.nama || "").toLowerCase().includes(q) === false) return;
+        Object.entries(dataHariIni).forEach(([nomor, a]) => {
+        if (!semuaPeserta[nomor]) return; // abaikan data yang tidak lagi terdaftar
+        if (q && (a.nama || "").toLowerCase().includes(q) === false) return;
 
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-        <td>${no++}</td>
-        <td>${a.nama}</td>
-        <td>${a.nomor}</td>     
-        <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
-        <td class="${a.status === 'Terlambat' ? 'status-terlambat' : a.status === 'Bolos' ? 'status-bolos' : a.status === 'Izin' ? 'status-izin' : a.status === 'Sakit' ? 'status-sakit' : 'status-tepat'}">${a.status || "-"}</td>
-        <td>${a.alasan}</td>
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${no++}</td>
+            <td>${a.nama}</td>
+            <td>${a.nomor}</td>     
+            <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
+            <td class="${a.status === 'Terlambat' ? 'status-terlambat' : a.status === 'Bolos' ? 'status-bolos' : a.status === 'Izin' ? 'status-izin' : a.status === 'Sakit' ? 'status-sakit' : 'status-tepat'}">${a.status || "-"}</td>
+            <td>${a.alasan}</td>
         `;
-                tbody.appendChild(tr);
-            });
+            tbody.appendChild(tr);
+        });
+
         }
         // <td>${a.waktuMasuk ? new Date(a.waktuMasuk).toLocaleString("id-ID") : "-"}</td>
         function updateJam() {
