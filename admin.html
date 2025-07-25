@@ -5,6 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin Absensi</title>
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     /* RESET & BASIC */
     *,
@@ -29,12 +31,11 @@
     .container {
       max-width: 1000px;
       margin: auto;
+      padding: 16px;
     }
 
     /* HEADERS */
-    body {
-      padding: 16px;
-    }
+
 
     h2 {
       font-size: 1.8rem;
@@ -653,7 +654,7 @@
   </style>
 </head>
 
-<body>
+<body style="display: flex; flex-direction: column; min-height: 100vh;">
   <div class="container">
 
     <div class="header-container">
@@ -803,6 +804,10 @@
     </div>
   </div>
   </div>
+  <footer style="background:#2c3e50;color:white;text-align:center;padding:12px 16px;margin-top:auto;">
+    <p class="mb-0">&copy; 2025 Absensi Digital • Dibuat oleh <a href="https://portfolio-chx.netlify.app/" target="_blank" class="text-info text-decoration-none">Chandra </a>✨</p>
+  </footer>
+
 
 
 
@@ -1185,7 +1190,7 @@
         const list = Array.from(bulanUnik)
           .map(t => {
             const [y, m] = t.split("-");
-            return { value: t, label: getNamaBulan(Number(m) - 1) };
+            return { value: t, label: getNamaBulan(Number(m) - 1) + " " + y };
           })
           .sort((a, b) => b.value.localeCompare(a.value));
 
@@ -1193,41 +1198,70 @@
           const selectedBulan = list.find(l => l.label === selectedLabel).value;
           bulanBtn.textContent = selectedLabel;
 
-          // ✅ Highlight
-          bulanBtn.classList.add("active");
-          mingguBtn.classList.remove("active");
-          hariBtn.classList.remove("active");
-
-          mingguBtn.disabled = false;
-          mingguBtn.textContent = "Minggu";
-          hariBtn.disabled = true;
-          hariBtn.textContent = "Hari";
-
+          // Filter data
           const tanggalDalamBulan = semuaTanggal.filter(t => t.startsWith(selectedBulan));
-          const mingguMap = {};
+          const dataBulanIni = {};
+          tanggalDalamBulan.forEach(t => {
+            if (data[t]) dataBulanIni[t] = data[t];
+          });
 
+          // Buat data minggu aktif
+          const mingguMap = {};
           tanggalDalamBulan.forEach(tgl => {
             const week = getISOWeekNumber(new Date(tgl));
             if (!mingguMap[week]) mingguMap[week] = [];
             mingguMap[week].push(tgl);
           });
-
           mingguAktif = mingguMap;
+
+          // Simpan hari aktif kosong dulu
+          hariAktif = [];
+
+          // Reset tombol
+          bulanBtn.classList.add("active");
+          mingguBtn.classList.remove("active");
+          hariBtn.classList.remove("active");
+          mingguBtn.disabled = false;
+          hariBtn.disabled = true;
+          mingguBtn.textContent = "Minggu";
+          hariBtn.textContent = "Hari";
+
+          // ✅ Tambahkan konfirmasi
+          showDropdown(["Seluruh Bulan", "Pilih Minggu"], "Lihat data bulan ini?", (opsi) => {
+            if (opsi === "Seluruh Bulan") {
+              renderSemuaTanggal(dataBulanIni);
+            } else if (opsi === "Pilih Minggu") {
+              mingguBtn.click();
+            }
+          });
         });
       };
-
 
       mingguBtn.onclick = () => {
         const daftarMinggu = Object.keys(mingguAktif);
         showDropdown(daftarMinggu, "Pilih Minggu", (selected) => {
           mingguBtn.textContent = `Minggu ${selected}`;
-          hariBtn.disabled = false;
           mingguBtn.classList.add("active");
           hariBtn.classList.remove("active");
+          hariBtn.disabled = false;
           hariBtn.textContent = "Hari";
           hariAktif = mingguAktif[selected];
+
+          // ✅ Konfirmasi dulu sebelum tampilkan
+          showDropdown(["Lihat Minggu Ini", "Lanjut ke Hari"], "Apa yang ingin dilihat?", (jawaban) => {
+            if (jawaban === "Lihat Minggu Ini") {
+              const dataMingguIni = {};
+              hariAktif.forEach(t => {
+                if (dataAbsensiGlobal[t]) dataMingguIni[t] = dataAbsensiGlobal[t];
+              });
+              renderSemuaTanggal(dataMingguIni);
+            } else if (jawaban === "Lanjut ke Hari") {
+              hariBtn.click();
+            }
+          });
         });
       };
+
 
       hariBtn.onclick = () => {
         showDropdown(hariAktif, "Pilih Hari", (selectedTanggal) => {
@@ -1239,6 +1273,45 @@
         });
       };
     }
+
+    function renderSemuaTanggal(dataBulan) {
+      const tbody = document.getElementById("absenBody");
+      tbody.innerHTML = "";
+      const cari = document.getElementById("cariInput").value.toLowerCase();
+      let no = 1;
+
+      get(pesertaRef).then(snap => {
+        const pesertaData = snap.exists() ? snap.val() : {};
+
+        for (let tanggal in dataBulan) {
+          for (let nomor in dataBulan[tanggal]) {
+            const a = dataBulan[tanggal][nomor];
+            if (!a || !a.nama || typeof a.nama !== "string" || a.nama.trim() === "") continue;
+            if (!a.nama.toLowerCase().includes(cari)) continue;
+
+            let statusClass = "status-tepat";
+            if (a.status === "Terlambat") statusClass = "status-terlambat";
+            else if (a.status === "Bolos") statusClass = "status-bolos";
+            else if (a.status === "Izin") statusClass = "status-izin";
+            else if (a.status === "Sakit") statusClass = "status-sakit";
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+          <td>${no++}</td>
+          <td>${a.nama}</td>
+          <td>${a.nomor}</td>
+          <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
+          <td class="${statusClass}">${a.status || "-"}</td>
+          <td>${a.alasan}</td>
+          <td><span class="btn-edit" onclick="editAbsensi('${tanggal}', '${nomor}')">Edit</span></td>
+          <td><span class="btn-hapus" onclick="hapusAbsensi('${tanggal}', '${nomor}')">Hapus</span></td>
+        `;
+            tbody.appendChild(tr);
+          }
+        }
+      });
+    }
+
 
     function resetKeHariIni() {
       const hariIni = new Date().toISOString().slice(0, 10);

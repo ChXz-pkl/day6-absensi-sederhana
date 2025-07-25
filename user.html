@@ -5,6 +5,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Absensi Peserta</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         /* ===== RESET & GLOBAL ===== */
         html,
@@ -22,6 +24,7 @@
         .container {
             max-width: 1000px;
             margin: auto;
+            padding: 16px;
         }
 
         *,
@@ -31,9 +34,6 @@
         }
 
         /* ===== TYPOGRAPHY & HEADERS ===== */
-        body {
-            padding: 16px;
-        }
 
         h2 {
             font-size: 1.75rem;
@@ -52,6 +52,18 @@
             margin: 8px auto 0;
             border-radius: 2px;
         }
+
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            font-size: 14px;
+            width: 100%;
+            position: relative;
+            margin-top: auto;
+        }
+
 
         .header-container {
             display: flex;
@@ -414,9 +426,9 @@
     </style>
 </head>
 
-<body>
+<body style="display:flex; flex-direction:column; min-height:100vh;">
 
-    <div class="container">
+    <div class="container" style="flex:1;">
 
         <div class="header-container">
             <div class="left">
@@ -476,6 +488,10 @@
             </table>
         </div>
     </div>
+    <footer>
+        <p class="mb-0">&copy; 2025 Absensi Digital • Dibuat oleh <a href="https://portfolio-chx.netlify.app/"
+                target="_blank" class="text-info text-decoration-none">Chandra </a>✨</p>
+    </footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
@@ -553,6 +569,11 @@
                 const waktuSekarang = now.split("T")[1].slice(0, 5); // jam:menit
                 const status = waktuSekarang > batasTerlambat ? "Terlambat" : "Tepat Waktu";
 
+                if (!p.nama || !nomor || !alasan || !status) {
+                    statusPesan.textContent = "❌ Data tidak lengkap!";
+                    statusPesan.style.color = "red";
+                    return;
+                }
                 await set(todayRef, {
                     nama: p.nama,
                     nomor,
@@ -561,6 +582,7 @@
                     alasan,
                     status
                 });
+
 
                 statusPesan.textContent = "✅ Absen masuk berhasil.";
                 statusPesan.style.color = "green";
@@ -734,7 +756,16 @@
 
         };
 
+        document.getElementById("formAbsen").addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault(); // mencegah form ke-submit default
+                absen("pulang");
+            }
+        });
+
+
     </script>
+
 
 </body>
 
