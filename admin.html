@@ -459,6 +459,32 @@
       };
     }
 
+    document.getElementById('tambahPeserta').addEventListener('click', async () => {
+    const nama = document.getElementById('namaPeserta').value.trim();
+    const nomor = document.getElementById('nomorPeserta').value.trim();
+
+    if (!nama || !nomor) {
+        showAlert("⚠️ Nama dan nomor tidak boleh kosong!", "#ff9800");
+        return;
+    }
+
+    // Cek duplikat nomor
+    const snapshot = await get(ref(db, 'peserta'));
+    const data = snapshot.val() || {};
+    const nomorSudahAda = Object.values(data).some(p => p.nomor === nomor);
+    if (nomorSudahAda) {
+        showAlert("⚠️ Nomor peserta sudah digunakan!", "#ff9800");
+        return;
+    }
+
+    // Jika valid, lanjut push
+    const newRef = push(ref(db, 'peserta'));
+    await set(newRef, { nama, nomor });
+
+    showAlert("✅ Peserta berhasil ditambahkan!", "#4caf50");
+    document.getElementById('modalTambahPeserta').classList.add('hidden');
+    muatPeserta();
+});
     // --- RENDER & FILTER DATA ABSENSI (LOGIKA DIPERBAIKI) ---
     async function initData() {
       // DIPERBAIKI: Mengambil data peserta dan absensi secara bersamaan
@@ -771,6 +797,7 @@
 
     window.hapusAbsensi = (t, n) => { if (confirm(`Yakin hapus absensi ${dataAbsensiGlobal[t][n].nama} pada tgl ${t}?`)) remove(ref(db, `absensi/${t}/${n}`)).then(() => { showAlert('Data absensi dihapus.'); initData(); }); };
 
+    
 
   </script>
 </body>
