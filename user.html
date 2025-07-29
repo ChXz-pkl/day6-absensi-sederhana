@@ -531,11 +531,19 @@
         }
 
         // Absen hanya pulang
+        // Ganti fungsi absen lama Anda dengan yang ini
         async function absen(tipe) {
             const nomor = document.getElementById("nomorInput").value.trim();
             const alasan = document.getElementById("alasanInput").value;
             const statusPesan = document.getElementById("statusPesan");
             const preview = document.getElementById("previewPeserta");
+
+            if (!nomor) {
+                statusPesan.textContent = "❌ Nomor peserta harus diisi!";
+                statusPesan.style.color = "red";
+                setTimeout(() => statusPesan.textContent = "", 2500);
+                return;
+            }
 
             const pesertaSnap = await get(child(ref(db), `peserta/${nomor}`));
             if (!pesertaSnap.exists()) {
@@ -546,116 +554,86 @@
             }
 
             const p = pesertaSnap.val();
-            preview.innerHTML = p.foto
-                ? `<img src="${p.foto}"/><div><strong>${p.nama}</strong></div>`
-                : `<div><strong>${p.nama}</strong></div>`;
-            setTimeout(() => preview.innerHTML = "", 2500);
+            preview.innerHTML = p.foto ?
+                `<img src="${p.foto}" alt="${p.nama}"/><div><strong>${p.nama}</strong></div>` :
+                `<div><strong>${p.nama}</strong></div>`;
+            setTimeout(() => preview.innerHTML = "", 3000);
 
-            const now = new Date().toISOString();
-            const tanggal = now.slice(0, 10);
+            const now = new Date();
+            const tanggal = now.toISOString().slice(0, 10);
             const todayRef = ref(db, `absensi/${tanggal}/${nomor}`);
             const todaySnap = await get(todayRef);
-            const batasTerlambat = localStorage.getItem("jamBatas") || "08:00";
 
-
-            // ===== ABSEN MASUK =====
-            if (tipe === "masuk") {
-                if (todaySnap.exists() && todaySnap.val().waktuMasuk) {
-                    statusPesan.textContent = "❌ Sudah absen masuk!";
+            // ===== HANYA LOGIKA ABSEN PULANG YANG DIGUNAKAN =====
+            if (tipe === "pulang") {
+                const dataAbsen = todaySnap.val();
+                if (dataAbsen && dataAbsen.waktuPulang) {
+                    statusPesan.textContent = "❌ Anda sudah melakukan absen pulang hari ini!";
                     statusPesan.style.color = "red";
                     return;
                 }
 
-                const waktuSekarang = now.split("T")[1].slice(0, 5); // jam:menit
-                const status = waktuSekarang > batasTerlambat ? "Terlambat" : "Tepat Waktu";
+                // --- PERUBAHAN UTAMA ADA DI SINI ---
 
-                if (!p.nama || !nomor || !alasan || !status) {
-                    statusPesan.textContent = "❌ Data tidak lengkap!";
-                    statusPesan.style.color = "red";
-                    return;
-                }
-                await set(todayRef, {
-                    nama: p.nama,
-                    nomor,
-                    waktuMasuk: now,
-                    waktuPulang: "",
-                    alasan,
-                    status
-                });
+                // BARU: Ambil batas waktu dari admin, jika tidak ada, default ke "16:00"
+                const batasWaktuString = localStorage.getItem("jamBatasPulang") || "16:00";
+                const [batasJam, batasMenit] = batasWaktuString.split(':').map(Number);
 
-
-                statusPesan.textContent = "✅ Absen masuk berhasil.";
-                statusPesan.style.color = "green";
-            }
-
-            // ===== ABSEN PULANG =====
-            else if (tipe === "pulang") {
-                const jamPulang = new Date(now);
-                const jam = jamPulang.getHours();
-                const menit = jamPulang.getMinutes();
-
-                let statusPulang = "Terlambat Pulang";
+                // DIUBAH: Logika status pulang sekarang dinamis sesuai aturan admin
+                let statusPulang = "";
+                const jamSekarang = now.getHours();
+                const menitSekarang = now.getMinutes();
 
                 if (alasan === "Sakit" || alasan === "Izin") {
-                    statusPulang = alasan; // langsung jadi 'Sakit' atau 'Izin'
+                    statusPulang = alasan; // Jika sakit atau izin, status mengikuti alasan
                 } else {
-                    if (jam < 16) {
-                        statusPulang = "Bolos";
-                    } else if (jam === 16 && menit <= 30) {
-                        statusPulang = "Tepat";
+                    // Bandingkan waktu saat ini dengan batas waktu dari admin
+                    if (jamSekarang < batasJam || (jamSekarang === batasJam && menitSekarang < batasMenit)) {
+                        statusPulang = "Bolos"; // Pulang sebelum waktunya
                     } else {
-                        statusPulang = "Terlambat";
+                        statusPulang = "Tepat Waktu"; // Pulang tepat waktu atau lebih
                     }
                 }
 
+                // --- AKHIR DARI PERUBAHAN ---
 
-
-                if (!todaySnap.exists()) {
-                    await set(todayRef, {
-                        nama: p.nama,
-                        nomor,
-                        waktuMasuk: "",
-                        waktuPulang: now,
-                        alasan,
-                        status: statusPulang
-                    });
-                } else {
-                    const data = todaySnap.val();
-                    if (data.waktuPulang) {
-                        statusPesan.textContent = "❌ Sudah absen pulang!";
-                        statusPesan.style.color = "red";
-                        return;
-                    }
-
-                    await update(todayRef, {
-                        waktuPulang: now,
-                        status: statusPulang
-                    });
-                }
-
-                const statusMap = {
-                    "Tepat": { teks: "✅ Pulang tepat waktu!", warna: "green" },
-                    "Terlambat": { teks: "⚠️ Pulang terlambat!", warna: "orange" },
-                    "Izin": { teks: "🟡 Pulang karena izin", warna: "#f57c00" },
-                    "Sakit": { teks: "🟡 Pulang karena sakit", warna: "#f57c00" },
-                    "Bolos": { teks: "❌ Bolos! Pulang terlalu cepat", warna: "red" },
+                const dataToSet = {
+                    ...dataAbsen, // Pertahankan data lama jika ada (misal: waktuMasuk)
+                    nama: p.nama,
+                    nomor,
+                    waktuPulang: now.toISOString(),
+                    status: statusPulang,
+                    alasan: alasan,
+                    tanggal: tanggal
                 };
 
-                const statusInfo = statusMap[statusPulang] || { teks: `✅ Absen pulang berhasil (${statusPulang})`, warna: "black" };
+                // Jika belum ada data sama sekali hari ini, pakai set. Jika sudah ada, pakai update.
+                if (!todaySnap.exists()) {
+                    await set(todayRef, { waktuMasuk: "", ...dataToSet });
+                } else {
+                    await update(todayRef, dataToSet);
+                }
 
-                statusPesan.textContent = statusInfo.teks;
-                statusPesan.style.color = statusInfo.warna;
+                const pesanSukses = {
+                    "Bolos": "❌ Bolos! Anda pulang terlalu cepat.",
+                    "Tepat Waktu": "✅ Absen pulang berhasil, Tepat Waktu!",
+                    "Sakit": "🟡 Absen pulang karena Sakit.",
+                    "Izin": "🟡 Absen pulang karena Izin."
+                };
+                const warnaPesan = {
+                    "Bolos": "red",
+                    "Tepat Waktu": "green",
+                    "Sakit": "orange",
+                    "Izin": "orange"
+                };
 
-                setTimeout(() => {
-                    statusPesan.textContent = "";
-                }, 2500);
+                statusPesan.textContent = pesanSukses[statusPulang] || "Absen pulang berhasil.";
+                statusPesan.style.color = warnaPesan[statusPulang] || "green";
             }
 
-
             document.getElementById("formAbsen").reset();
-            renderTabel();
+            renderTabel(); // Perbarui tabel setelah absen
         }
-
 
         // Render tabel absensi
         // Render tabel absensi
@@ -701,12 +679,12 @@
 
             // ⏳ Jika belum lengkap, tampilkan data peserta
             let no = 1;
-        Object.entries(dataHariIni).forEach(([nomor, a]) => {
-        if (!semuaPeserta[nomor]) return; // abaikan data yang tidak lagi terdaftar
-        if (q && (a.nama || "").toLowerCase().includes(q) === false) return;
+            Object.entries(dataHariIni).forEach(([nomor, a]) => {
+                if (!semuaPeserta[nomor]) return; // abaikan data yang tidak lagi terdaftar
+                if (q && (a.nama || "").toLowerCase().includes(q) === false) return;
 
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
             <td>${no++}</td>
             <td>${a.nama}</td>
             <td>${a.nomor}</td>     
@@ -714,8 +692,8 @@
             <td class="${a.status === 'Terlambat' ? 'status-terlambat' : a.status === 'Bolos' ? 'status-bolos' : a.status === 'Izin' ? 'status-izin' : a.status === 'Sakit' ? 'status-sakit' : 'status-tepat'}">${a.status || "-"}</td>
             <td>${a.alasan}</td>
         `;
-            tbody.appendChild(tr);
-        });
+                tbody.appendChild(tr);
+            });
 
         }
         // <td>${a.waktuMasuk ? new Date(a.waktuMasuk).toLocaleString("id-ID") : "-"}</td>

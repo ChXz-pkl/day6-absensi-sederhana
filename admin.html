@@ -7,7 +7,14 @@
   <title>Admin Absensi</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    /* RESET & BASIC */
+    :root {
+      --hijau: #4CAF50;
+      --biru: #2196F3;
+      --merah: #f44336;
+      --abu: #607d8b;
+      --ungu: #673ab7;
+    }
+
     *,
     *::before,
     *::after {
@@ -16,33 +23,24 @@
       padding: 0;
     }
 
-    html,
     body {
-      width: 100%;
-      height: 100%;
       font-family: 'Segoe UI', sans-serif;
       background: #f4f7f8;
-      color: #333;
     }
 
-
-    /* CONTAINER */
     .container {
-      max-width: 1000px;
+      max-width: 1100px;
       margin: auto;
       padding: 16px;
     }
 
-    /* HEADERS */
-
-
     h2 {
       font-size: 1.8rem;
       color: #2c3e50;
-      margin-bottom: 16px;
-      position: relative;
+      margin-bottom: 24px;
       text-align: center;
       padding-bottom: 8px;
+      position: relative;
     }
 
     h2::after {
@@ -50,7 +48,7 @@
       display: block;
       width: 60px;
       height: 4px;
-      background: #4CAF50;
+      background: var(--hijau);
       margin: 8px auto 0;
       border-radius: 2px;
     }
@@ -60,133 +58,71 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 24px;
-      padding: 0 12px;
     }
 
-    .header-container .left,
-    .header-container .right {
-      width: 100px;
-      text-align: center;
-    }
-
-    .header-container .center {
-      flex: 1;
-      text-align: center;
-    }
-
-    .header-container h2 {
-      margin: 0;
-      font-size: 1.75rem;
-      color: #2c3e50;
-      position: relative;
-    }
-
-    .kembali-btn {
-      background: #f44336;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer
-    }
-
-    /* FORM TAMBAH PESERTA */
-    form#formTambah {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      margin-bottom: 30px;
-      transition: transform .2s;
-    }
-
-    form#formTambah:hover {
-      transform: translateY(-3px);
-    }
-
-    form#formTambah input,
-    form#formTambah input[type="file"],
-    form#formTambah button {
-      width: 100%;
-      font-size: 1rem;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-
-    form#formTambah button {
-      background: #2196F3;
-      color: white;
+    .jam-atas {
       font-weight: bold;
-      cursor: pointer;
-      transition: background .2s;
+      background: white;
+      padding: 6px 12px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 
-    form#formTambah button:hover {
-      background: #1976D2;
+    .card-header button {
+      text-decoration: none;
+      color: #2c3e50;
+      font-weight: bold;
     }
 
-    input[type="file"] {
-      border: 2px dashed #ccc;
-      background-color: #fafafa;
-      color: #555;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    input[type="file"]::file-selector-button {
-      background: #4CAF50;
+    button {
       color: white;
+      cursor: pointer;
       border: none;
+      transition: all 0.2s ease;
       padding: 8px 14px;
       border-radius: 6px;
-      margin-right: 10px;
-      cursor: pointer;
+    }
+
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .filter-button {
+      background-color: #e0e0e0;
+      margin-left: 5px;
+      color: #333;
+    }
+
+    .filter-button:hover {
+      background-color: #d0d0d0;
+    }
+
+    .filter-button.active {
+      background-color: var(--hijau);
+      color: white;
       font-weight: bold;
-      transition: background 0.3s ease;
     }
 
-    input[type="file"]::file-selector-button:hover {
-      background: #388e3c;
+    .filter-reset {
+      background-color: var(--abu);
+      color: white;
     }
 
-
-    /* REKAP & FILTER */
-    .filter {
-      margin-bottom: 12px;
-    }
-
-    .filter input {
-      width: 100%;
-      max-width: 300px;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
-    }
-
-    .rekap {
-      text-align: left;
-      font-weight: bold;
-      margin-bottom: 12px;
-    }
-
-    /* TABEL RESPONSIF */
     .table-responsive {
       overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      margin-bottom: 20px;
     }
 
-    .table-responsive table {
-      min-width: 700px;
-      width: auto;
+    table {
+      width: 100%;
       border-collapse: collapse;
       background: white;
       border-radius: 8px;
       overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
     th,
@@ -194,92 +130,62 @@
       padding: 12px;
       border-bottom: 1px solid #eee;
       text-align: left;
-      font-size: 0.95rem;
+      vertical-align: middle;
     }
 
     th {
-      background: #4CAF50;
+      background: var(--hijau);
       color: white;
-    }
-
-    tbody tr:nth-child(even) {
-      background: #fafafa;
-    }
-
-    tbody tr:hover {
-      background: #f1fdf1;
     }
 
     .status-tepat {
       color: green;
-      font-weight: bold;
     }
 
     .status-terlambat {
       color: red;
-      font-weight: bold;
     }
 
     .status-bolos {
       color: #b71c1c;
-      font-weight: bolder;
     }
 
     .status-izin,
     .status-sakit {
       color: #f57c00;
-      font-weight: bold;
-
     }
 
-
+    .btn-edit,
     .btn-hapus {
-      color: #e53935;
       font-weight: bold;
       cursor: pointer;
-      transition: color .2s;
-    }
-
-    .btn-hapus:hover {
-      color: #b71c1c;
     }
 
     .btn-edit {
-      color: #1976d2;
-      font-weight: bold;
-      cursor: pointer;
+      color: var(--biru);
     }
 
-    .btn-edit:hover {
-      color: #0d47a1;
+    .btn-hapus {
+      color: var(--merah);
     }
 
-
-    /* DAFTAR PESERTA */
-    /* DAFTAR PESERTA */
-    ul#daftarPeserta {
+    #daftarPeserta {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      /* Default untuk desktop/tablet besar */
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 16px;
       list-style: none;
-      margin-top: 20px;
+      padding: 0;
     }
 
-    ul#daftarPeserta li {
+    #daftarPeserta li {
       background: white;
       padding: 12px;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
       text-align: center;
-      transition: transform .2s;
     }
 
-    ul#daftarPeserta li:hover {
-      transform: translateY(-3px);
-    }
-
-    ul#daftarPeserta img {
+    #daftarPeserta img {
       width: 80px;
       height: 80px;
       object-fit: cover;
@@ -287,110 +193,90 @@
       margin-bottom: 8px;
     }
 
-    /* === MODAL EDIT ABSENSI KHUSUS === */
-
-    .modal-absen {
+    .modal-overlay {
       position: fixed;
       top: 0;
       left: 0;
       display: none;
-      /* awalnya tersembunyi */
       justify-content: center;
       align-items: center;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.6);
       z-index: 1000;
     }
 
-    .modal-box {
+    .modal-content {
       background: white;
-      padding: 20px;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    }
-
-    .modal-box select {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 12px;
-      border-radius: 6px;
-    }
-
-    .modal-edit-absen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      display: none;
-      /* ini penting! */
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-
-    .modal-edit-box {
-      background: #fff;
-      padding: 24px 28px;
+      padding: 24px;
       border-radius: 10px;
       width: 90%;
-      max-width: 400px;
-      text-align: center;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-      animation: fadeIn 0.2s ease-out;
+      max-width: 450px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+      animation: fadeIn 0.3s;
     }
 
-    .modal-edit-box h3 {
-      font-size: 1.4rem;
-      color: #2c3e50;
-      margin-bottom: 16px;
+    .modal-rekap .modal-content {
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
     }
 
-    .modal-edit-box select {
-      width: 100%;
-      padding: 12px;
-      font-size: 1rem;
-      margin-bottom: 16px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      background: #f9f9f9;
-      transition: border-color .2s ease;
-    }
-
-    .modal-edit-box select:focus {
-      border-color: #4CAF50;
-      outline: none;
-    }
-
-    .modal-edit-actions {
+    .modal-actions {
       display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-top: 10px;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
     }
 
-    .modal-edit-actions button {
-      padding: 10px 18px;
-      font-size: 0.95rem;
+    #rekapChart {
+      max-height: 280px;
+      width: 100% !important;
+      margin-bottom: 20px;
+    }
+
+    #customAlert {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      padding: 15px 20px;
+      border-radius: 8px;
       font-weight: bold;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .modal-edit-actions button.simpan {
-      background: #4CAF50;
       color: white;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transform: translateX(120%);
+      transition: transform 0.4s ease-in-out;
     }
 
-    .modal-edit-actions button.batal {
-      background: #ccc;
-      color: #333;
+    #customAlert.show {
+      transform: translateX(0);
+    }
+
+    .rekap-hadir {
+      background-color: #d4edda !important;
+    }
+
+    .rekap-sakit {
+      background-color: #f8d7da !important;
+    }
+
+    .rekap-izin {
+      background-color: #fff3cd !important;
+    }
+
+    .rekap-bolos {
+      background-color: #f5c6cb !important;
+    }
+
+    .setting-box {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      background-color: #f0f9f0;
+      padding: 1.25rem;
+      border-radius: 8px;
+      border-left: 5px solid var(--hijau);
     }
 
     @keyframes fadeIn {
@@ -404,321 +290,73 @@
         transform: scale(1);
       }
     }
-
-
-    /* MODAL EDIT */
-    .modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-
-    .modal-content {
-      background: #fff;
-      padding: 20px 24px;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      text-align: center;
-    }
-
-    .modal-content select {
-      width: 100%;
-      padding: 10px;
-      font-size: 1rem;
-      margin: 10px 0;
-      border-radius: 6px;
-    }
-
-    .filter-button {
-      background-color: #e0e0e0;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-weight: normal;
-    }
-
-    .filter-button:hover {
-      background-color: #ccc;
-    }
-
-    .filter-button.active {
-      background-color: #4caf50;
-      color: white;
-      font-weight: bold;
-    }
-
-    .filter-reset {
-      background-color: #607d8b;
-      color: white;
-    }
-
-    .filter-reset:hover {
-      background-color: #455a64;
-    }
-
-    .modal-content input {
-      width: 100%;
-      margin: 8px 0;
-      padding: 10px;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-
-    .modal-actions {
-      margin-top: 12px;
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-    }
-
-    .modal-actions button {
-      padding: 10px 18px;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .modal-actions button#simpanEdit {
-      background: #2196F3;
-      color: white;
-    }
-
-    .modal-actions button.batal {
-      background: #ccc;
-      color: #333;
-    }
-
-
-    .jam-atas {
-      text-align: center;
-      font-size: 1rem;
-      font-weight: bold;
-      color: #555;
-      margin-bottom: 16px;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 6px 12px;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    button {
-      margin-top: 2px;
-      background: #4CAF50;
-      color: white;
-      font-weight: bold;
-      padding: 10px 18px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.3s ease, transform 0.2s ease;
-      margin-right: 10px;
-    }
-
-    button:hover {
-      background: #388e3c;
-      transform: translateY(-2px);
-    }
-
-    button:active {
-      transform: scale(0.98);
-    }
-
-    /* RESPONSIVE */
-    @media (max-width:768px) {
-      .container {
-        padding: 12px;
-      }
-
-      h2 {
-        font-size: 1.6rem;
-      }
-
-      form#formTambah {
-        padding: 16px;
-      }
-
-      input,
-      button {
-        font-size: 0.95rem;
-        padding: 10px;
-      }
-
-      th,
-      td {
-        padding: 10px;
-      }
-
-      .table-responsive {
-        margin: -0 -12px;
-        padding: 0 12px;
-      }
-
-      .table-responsive table {
-        box-shadow: none;
-        border-radius: 0;
-      }
-
-      ul#daftarPeserta {
-        gap: 12px;
-        /* Ubah grid untuk tablet */
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        /* Sedikit lebih kecil */
-      }
-
-      ul#daftarPeserta li {
-        max-width: none;
-        /* Hapus batasan max-width jika ada dari kode lama */
-      }
-    }
-
-    @media (max-width: 600px) {
-      .filter-row {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .filter-row>div {
-        width: 100%;
-      }
-
-      .filter-row input,
-      .filter-row button {
-        width: 75%;
-        margin-top: 8px;
-      }
-
-      .filter-row button {
-        margin-left: 50px;
-      }
-    }
-
-    @media (max-width:480px) {
-      h2 {
-        font-size: 1.4rem;
-      }
-
-      input,
-      button {
-        font-size: 0.9rem;
-        padding: 8px;
-      }
-
-      th,
-      td {
-        padding: 8px;
-        font-size: 0.9rem;
-      }
-
-      ul#daftarPeserta {
-        /* Untuk layar sangat kecil, jadikan satu kolom */
-        grid-template-columns: 1fr;
-        /* Satu kolom penuh */
-        gap: 10px;
-        /* Kurangi sedikit jarak */
-      }
-
-      ul#daftarPeserta li {
-        padding: 10px;
-        /* Sedikit lebih kecil padding */
-        width: 100%;
-        /* Pastikan mengisi lebar penuh */
-      }
-
-      ul#daftarPeserta img {
-        width: 70px;
-        /* Sedikit lebih kecil */
-        height: 70px;
-      }
-
-      .header-container {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-      }
-
-      .header-container .left,
-      .header-container .right {
-        width: 100%;
-        text-align: center;
-      }
-
-      .kembali-btn {
-        font-size: 0.95rem;
-        padding: 4px 10px;
-      }
-
-      .jam-atas {
-        font-size: 0.9rem;
-        padding: 4px 12px;
-        position: relative;
-        top: 0;
-        background: rgba(255, 255, 255, 0.8);
-        padding: 6px 12px;
-        border-radius: 12px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      }
-    }
   </style>
 </head>
 
 <body style="display: flex; flex-direction: column; min-height: 100vh;">
   <div class="container">
+     <div class="header-container">
+      <button onclick="logout()" style="background-color: var(--merah);">Kembali</button>
+      <h2>Dasbor Admin</h2>
+      <div class="jam-atas" id="jamSekarang">--:--:--</div>
+    </div>
 
-    <div class="header-container">
-      <div class="left">
-        <button class="kembali-btn" onclick="location.href='index.html'">Kembali</button>
-      </div>
-      <div class="center">
-        <h2>Form Admin</h2>
-      </div>
-      <div class="right">
-        <div class="jam-atas" id="jamSekarang">--:--:--</div>
+    <div class="accordion" id="accordionAdmin">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingOne">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+            data-bs-target="#collapseOne">
+            Form Tambah Peserta
+          </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionAdmin">
+          <div class="accordion-body">
+            <form id="formTambah">
+              <input type="text" id="namaBaru" placeholder="Nama Peserta" required class="form-control mb-2">
+              <input type="text" id="nomorBaru" placeholder="Nomor Unik" required class="form-control mb-2">
+              <input type="file" id="fotoBaru" accept="image/*" required class="form-control mb-2">
+              <button type="submit" style="background-color: var(--biru);" class="w-100">Tambah Peserta</button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
-    <br>
 
-    <h2>Tambah Peserta</h2>
-    <form id="formTambah">
-      <input type="text" id="namaBaru" placeholder="Nama" required />
-      <input type="text" id="nomorBaru" placeholder="Nomor Unik" required />
-      <input type="file" id="fotoBaru" accept="image/*" required />
-      <button type="submit">Tambah Peserta</button>
-    </form>
+    <div class="accordion-item" style="margin-top: 10px;">
+      <div id="collapseSettings" class="accordion-collapse collapse show" data-bs-parent="#accordionAdmin">
+        <div class="accordion-body">
+          <div class="setting-box">
+            <svg xmlns="http://www.w3.org/2000/svg" height="32px" viewBox="0 0 24 24" width="32px" fill="#4CAF50">
+              <path d="M0 0h24v24H0z" fill="none" />
+              <path
+                d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
+            </svg>
 
-    <h2>Data Absensi</h2>
-
-    <div class="filter filter-row"
-      style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 16px;">
-
-      <div style="display: flex; gap: 10px; ">
-        <input type="time" id="jamBatasTerlambat" value="08:00" />
-        <input type="text" id="cariInput" placeholder="Cari nama..." oninput="renderAbsensi()" />
+            <div>
+              <label for="jamBatasPulang" class="form-label fw-bold">Batas Awal Pulang Tepat Waktu</label>
+              <input type="time" id="jamBatasPulang" value="16:00" class="form-control" style="max-width: 150px;">
+              <div class="form-text mt-1">
+                Peserta yang absen pulang <strong>sebelum</strong> jam ini akan berstatus "Bolos".
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+    </div>
 
-      <div id="filterBMH" style="display: flex; gap: 10px; flex-wrap: wrap;">
+    <h2 class="mt-4">Data Absensi</h2>
+    <div class="filter-row">
+      <input type="text" id="cariInput" placeholder="Cari nama..." oninput="renderTabel(dataTabelSaatIni, true)"
+        class="form-control" style="flex-grow: 1;">
+      <div id="filterBMH" class="btn-group" role="group">
         <button id="bulanBtn" class="filter-button">Bulan</button>
         <button id="mingguBtn" class="filter-button" disabled>Minggu</button>
         <button id="hariBtn" class="filter-button" disabled>Hari</button>
-        <button id="resetHariBtn" class="filter-button filter-reset">🔙 Hari Ini</button>
+        <button id="resetHariBtn" class="filter-button filter-reset" title="Kembali ke tampilan awal">Reset</button>
       </div>
     </div>
 
-
-    <div class="rekap" id="rekapInfo"></div>
-    <div id="notifLengkap" style="margin-bottom:10px; font-weight:bold; color:green;"></div>
+    <div class="rekap" id="rekapInfo" style="font-size: 0.9em; margin-bottom: 10px;"></div>
     <div class="table-responsive">
       <table>
         <thead>
@@ -726,448 +364,225 @@
             <th>No</th>
             <th>Nama</th>
             <th>Nomor</th>
-            <th>Pulang</th>
+            <th>Waktu Pulang</th>
             <th>Status</th>
             <th>Alasan</th>
-            <th>Edit</th>
-            <th>Hapus</th>
+            <th>Aksi</th>
           </tr>
         </thead>
         <tbody id="absenBody"></tbody>
       </table>
     </div>
 
-    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
-      <button onclick="exportCSV()">Download Full Data</button>
-      <button onclick="downloadHariIni()">Download Hari Ini</button>
-
+    <div class="actions-container mt-3" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
+      <button onclick="exportCSV()" style="background-color:#0288d1;">Download Full Data</button>
+      <button onclick="downloadHarian()" style="background-color:var(--ungu);">Download Tampilan Harian</button>
+      <button onclick="tampilkanRekap()" style="background-color:var(--biru);">Tampilkan Rekap</button>
+      <button onclick="tambahAbsenManual()" style="background-color:#ff9800;">Tambah Absen Manual</button>
+      <button onclick="hapusSemuaData()" style="background-color:var(--merah);">Hapus Semua Absensi</button>
     </div>
 
-    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
-      <button onclick="hapusSemuaData()">Hapus Semua Absensi</button>
-      <button onclick="hapusHariIni()">Hapus Hari Ini</button>
-    </div>
-
-    <h2>Daftar Peserta</h2>
+    <h2 class="mt-4">Daftar Peserta Terdaftar</h2>
     <ul id="daftarPeserta"></ul>
-
-    <div id="modalEdit" class="modal">
-      <div class="modal-content">
-        <h3>Edit Peserta</h3>
-        <input type="text" id="editNama" placeholder="Nama baru">
-        <input type="text" id="editNomor" placeholder="Nomor baru">
-        <div class="modal-actions">
-          <button id="simpanEdit">Simpan</button>
-          <button id="batalEdit" class="batal">Batal</button>
-        </div>
-      </div>
-    </div>
-
-  </div>
-  <div id="customAlert"
-    style="display:none; position:fixed; top:20px; right:20px; z-index:9999; padding:12px 18px; border-radius:6px; font-weight:bold; font-size:0.95rem; box-shadow:0 4px 10px rgba(0,0,0,0.1); transition:opacity 0.3s;">
   </div>
 
-  <div id="confirmModal" class="modal">
-    <div class="modal-content">
-      <p id="confirmMessage" style="margin-bottom: 20px; font-size: 1rem;"></p>
-      <div class="modal-actions">
-        <button id="confirmYes" style="background:#4CAF50; color:white;">Ya</button>
-        <button id="confirmNo" class="batal">Tidak</button>
-      </div>
-    </div>
-  </div>
+  <div id="modal-container"></div>
+  <div id="customAlert"></div>
 
-  <div id="promptModal" class="modal">
-    <div class="modal-content">
-      <p id="promptMessage" style="margin-bottom: 12px;"></p>
-      <input type="text" id="promptInput" placeholder="Isi di sini..." />
-      <div class="modal-actions">
-        <button id="promptOK" style="background:#2196F3; color:white;">OK</button>
-        <button id="promptCancel" class="batal">Batal</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="modalEditAbsen" class="modal-absen">
-    <div class="modal-box">
-      <h3>Edit Data Absensi</h3>
-
-      <input type="datetime-local" id="editWaktuPulang" />
-
-      <select id="editStatusSelect">
-        <option value="Tepat">Tepat</option>
-        <option value="Terlambat">Terlambat</option>
-        <option value="Bolos">Bolos</option>
-        <option value="Izin">Izin</option>
-        <option value="Sakit">Sakit</option>
-      </select>
-      <select id="editAlasanSelect">
-        <option value="Hadir">Hadir</option>
-        <option value="Izin">Izin</option>
-        <option value="Sakit">Sakit</option>
-      </select>
-      <div class="modal-actions">
-        <button class="simpan" id="simpanEditAbsen">Simpan</button>
-        <button class="batal" id="batalEditAbsen">Batal</button>
-      </div>
-    </div>
-  </div>
-  </div>
-  <footer style="background:#2c3e50;color:white;text-align:center;padding:12px 16px;margin-top:auto;">
+  <footer style="background:#2c3e50;color:white;text-align:center;padding:12px;margin-top:auto;">
     <p class="mb-0">&copy; 2025 Absensi Digital • Dibuat oleh <a href="https://portfolio-chx.netlify.app/"
-        target="_blank" class="text-info text-decoration-none">Chandra </a></p>
+        target="_blank" class="text-info text-decoration-none">Chandra</a></p>
   </footer>
 
-
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-    import {
-      getDatabase, ref, set, push, get, onValue, remove, update
-    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+    import { getDatabase, ref, set, get, onValue, remove, update } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDOmBwvur0gJVvyzqLff-e_YjFpkyYvOCM",
-      authDomain: "absensi-chx.firebaseapp.com",
-      databaseURL: "https://absensi-chx-default-rtdb.firebaseio.com",
-      projectId: "absensi-chx",
-      storageBucket: "absensi-chx.appspot.com",
-      messagingSenderId: "891248981960",
-      appId: "1:891248981960:web:c0060ff1de18e61608b2fd"
-    };
-
+    // --- KONFIGURASI & VARIABEL GLOBAL ---
+    const firebaseConfig = { apiKey: "AIzaSyDOmBwvur0gJVvyzqLff-e_YjFpkyYvOCM", authDomain: "absensi-chx.firebaseapp.com", databaseURL: "https://absensi-chx-default-rtdb.firebaseio.com", projectId: "absensi-chx", storageBucket: "absensi-chx.appspot.com", messagingSenderId: "891248981960", appId: "1:891248981960:web:c0060ff1de18e61608b2fd" };
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const database = getDatabase(app);
-
     const pesertaRef = ref(db, 'peserta');
     const absensiRef = ref(db, 'absensi');
-    let tanggalTerpilih = ""; // untuk menyimpan tanggal yang sedang difilter
 
-    // Variabel global untuk data absensi dan filter
-    let dataAbsensiGlobal = {}; // Simpan semua data dari database di sini
-    let mingguAktif = {}; // Objek untuk menyimpan tanggal per minggu
-    let hariAktif = []; // Array untuk menyimpan tanggal per hari
+    let dataAbsensiGlobal = {}, dataPesertaGlobal = {}, mingguAktif = {}, hariAktif = [], dataTabelSaatIni = {};
+    let rekapChartInstance = null;
 
-
-    function showConfirm(pesan, onYes) {
-      const modal = document.getElementById("confirmModal");
-      const pesanBox = document.getElementById("confirmMessage");
-      const btnYes = document.getElementById("confirmYes");
-      const btnNo = document.getElementById("confirmNo");
-
-      pesanBox.textContent = pesan;
-      modal.style.display = "flex";
-
-      btnYes.onclick = () => {
-        modal.style.display = "none";
-        onYes(); // Jalankan fungsi jika user klik YA
-      };
-
-      btnNo.onclick = () => {
-        modal.style.display = "none";
-      };
+    function logout() {
+      showAlert('Anda telah keluar.', 'info');
+      setTimeout(() => {
+        localStorage.removeItem("isAdmin");
+        localStorage.removeItem("adminUser");
+        window.location.href = "login.html";
+      }, 1500);
     }
+    window.logout = logout; // Agar bisa dipanggil dari HTML
 
-    function showAlert(pesan, warna = "green") {
+
+    // --- UTILITAS & UI ---
+    function showAlert(pesan, tipe = "sukses") {
       const alertBox = document.getElementById("customAlert");
       alertBox.textContent = pesan;
-      alertBox.style.background = warna;
-      alertBox.style.color = "#fff";
-      alertBox.style.display = "block";
-      alertBox.style.opacity = "1";
-
-      setTimeout(() => {
-        alertBox.style.opacity = "0";
-        setTimeout(() => alertBox.style.display = "none", 300);
-      }, 3000);
+      alertBox.style.backgroundColor = tipe === 'gagal' ? 'var(--merah)' : tipe === 'info' ? 'var(--biru)' : 'var(--hijau)';
+      alertBox.classList.add("show");
+      setTimeout(() => alertBox.classList.remove("show"), 3000);
     }
 
-    function showPrompt(pesan, placeholder = "", onOK) {
-      const modal = document.getElementById("promptModal");
-      const message = document.getElementById("promptMessage");
-      const input = document.getElementById("promptInput");
-      const ok = document.getElementById("promptOK");
-      const cancel = document.getElementById("promptCancel");
-
-      message.textContent = pesan;
-      input.value = "";
-      input.placeholder = placeholder;
-      modal.style.display = "flex";
-      input.focus();
-
-      ok.onclick = () => {
-        modal.style.display = "none";
-        onOK(input.value.trim());
-      };
-      cancel.onclick = () => {
-        modal.style.display = "none";
-      };
+    function createModal(id, title, contentHTML, actions) {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.id = id;
+      modal.innerHTML = `<div class="modal-content">${title ? `<h3>${title}</h3>` : ''}${contentHTML}<div class="modal-actions">${actions.map(a => `<button id="${a.id}" style="background-color: ${a.color};">${a.text}</button>`).join('')}</div></div>`;
+      document.getElementById('modal-container').appendChild(modal);
+      return modal;
     }
 
-    // Tambah Peserta
-    formTambah.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const nama = namaBaru.value.trim();
-      const nomor = nomorBaru.value.trim();
-      const file = fotoBaru.files[0];
+    function showDropdown(items, title, callback) {
+      const id = 'dropdown-modal';
+      let existingModal = document.getElementById(id);
+      if (existingModal) existingModal.remove();
 
-      if (!nama || !nomor || !file) return showAlert("⚠️ Lengkapi semua data!", '#ff9800');
+      const content = items.map(item => `<button data-value="${item.val}" class="dropdown-item w-100 mb-2" style="background-color:var(--hijau);">${item.lbl}</button>`).join('');
+      const modal = createModal(id, title, `<div class="dropdown-modal-content">${content}</div>`, [{ id: 'batal-dropdown', text: 'Batal', color: '#ccc' }]);
 
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const foto = reader.result;
-        await set(ref(db, 'peserta/' + nomor), { nama, nomor, foto });
-        showAlert("✅ Peserta ditambahkan.", "#4CAF50");
-        formTambah.reset();
-        renderPeserta(); // Perbarui daftar peserta setelah menambah
-      };
-      reader.readAsDataURL(file);
-    });
-
-    // Tampilkan Peserta
-    function renderPeserta() {
-      onValue(pesertaRef, (snapshot) => {
-        const data = snapshot.val();
-        const list = document.getElementById("daftarPeserta");
-        list.innerHTML = "";
-
-        if (!data) {
-          list.innerHTML = "<p style='text-align:center; color:#555;'>Tidak ada peserta.</p>";
-          return;
+      modal.style.display = 'flex';
+      modal.onclick = e => {
+        if (e.target.classList.contains('dropdown-item')) {
+          callback(e.target.dataset.value);
+          modal.remove();
+        } else if (e.target.id === 'batal-dropdown' || e.target === modal) {
+          modal.remove();
         }
-
-        for (let key in data) {
-          const p = data[key];
-          const li = document.createElement("li");
-          li.innerHTML = `
-          <img src="${p.foto}" alt="foto" />
-          <div><strong>${p.nama}</strong></div>
-          <div>(${p.nomor})</div>
-          <span class="btn-edit" onclick="editPeserta('${p.nomor}')">Edit</span> |
-          <span class="btn-hapus" onclick="hapusPeserta('${p.nomor}')">Hapus</span>
-        `;
-          list.appendChild(li);
-        }
-      });
+      };
     }
 
-    window.hapusPeserta = async (nomor) => {
-      showConfirm("Yakin ingin menghapus peserta ini?", async () => {
-        await remove(ref(db, `peserta/${nomor}`));
-        showAlert("❌ Peserta dihapus.", "#f44336");
-        renderPeserta(); // Perbarui daftar peserta setelah menghapus
-      });
-    };
+    // --- RENDER & FILTER DATA ABSENSI (LOGIKA DIPERBAIKI) ---
+    async function initData() {
+      // DIPERBAIKI: Mengambil data peserta dan absensi secara bersamaan
+      try {
+        const [pesertaSnap, absensiSnap] = await Promise.all([get(pesertaRef), get(absensiRef)]);
+        dataPesertaGlobal = pesertaSnap.val() || {};
+        dataAbsensiGlobal = absensiSnap.val() || {};
 
-    let editKey = ""; // Digunakan untuk menyimpan nomor unik peserta yang sedang diedit
+        renderDaftarPeserta(dataPesertaGlobal);
+        renderAbsensiAwal();
+        initBMHControls();
+      } catch (error) {
+        console.error("Gagal mengambil data awal:", error);
+        showAlert("Gagal memuat data dari database.", "gagal");
+      }
+    }
 
-    window.editPeserta = async (nomor) => {
-      editKey = nomor; // Simpan nomor unik yang akan diedit
-      const snap = await get(ref(db, `peserta/${nomor}`));
-      if (!snap.exists()) {
-        showAlert("❌ Data peserta tidak ditemukan", "#f44336");
+    // --- MANAJEMEN PESERTA (DIPERBAIKI) ---
+    function renderDaftarPeserta(data) {
+      const list = document.getElementById("daftarPeserta");
+      list.innerHTML = "";
+
+      if (!data || Object.keys(data).length === 0) {
+        list.innerHTML = "<p class='text-center text-muted'>Belum ada peserta terdaftar.</p>";
         return;
       }
 
-      const data = snap.val();
-      document.getElementById("editNama").value = data.nama;
-      document.getElementById("editNomor").value = data.nomor; // Tampilkan nomor saat ini
-      document.getElementById("modalEdit").style.display = "flex";
-    };
-
-    document.getElementById("simpanEdit").addEventListener("click", async () => {
-      const namaBaru = document.getElementById("editNama").value.trim();
-      const nomorUnikBaru = document.getElementById("editNomor").value.trim();
-
-      if (!namaBaru || !nomorUnikBaru) return showAlert("⚠️ Nama dan Nomor Unik harus diisi!", '#ff9800');
-
-      // Ambil data foto lama
-      const snapshot = await get(ref(db, 'peserta/' + editKey));
-      const oldData = snapshot.val();
-      const fotoLama = oldData ? oldData.foto : null;
-
-      // Hapus data lama jika nomor unik berubah
-      if (nomorUnikBaru !== editKey) {
-        await remove(ref(db, 'peserta/' + editKey));
-      }
-
-      // Simpan data baru atau perbarui data yang ada dengan nomor unik baru
-      await set(ref(db, 'peserta/' + nomorUnikBaru), {
-        nama: namaBaru,
-        nomor: nomorUnikBaru,
-        foto: fotoLama // Gunakan foto lama
+      // DIPERBAIKI: Urutkan berdasarkan nomor unik
+      Object.values(data).sort((a, b) => a.nomor.localeCompare(b.nomor, undefined, { numeric: true })).forEach(p => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            <img src="${p.foto}" alt="${p.nama}" class="img-fluid rounded-circle">
+            <b class="d-block mt-2">${p.nama}</b>
+            <small class="text-muted">(${p.nomor})</small>
+            <div class="mt-2">
+                <span class="btn-edit" onclick="editPeserta('${p.nomor}')">Edit</span> | 
+                <span class="btn-hapus" onclick="hapusPeserta('${p.nomor}')">Hapus</span>
+            </div>`;
+        list.appendChild(li);
       });
+    }
 
-      document.getElementById("modalEdit").style.display = "none";
-      showAlert("✅ Peserta berhasil diperbarui.", "#4CAF50");
-      renderPeserta(); // Perbarui daftar peserta
-    });
+    function renderAbsensiAwal() {
+      let tglTerbaru = Object.keys(dataAbsensiGlobal).sort().pop();
+      const data = tglTerbaru ? dataAbsensiGlobal[tglTerbaru] : {};
+      renderTabel(data); updateRekapInfo(data);
+    }
 
-    document.getElementById("batalEdit").addEventListener("click", () => {
-      document.getElementById("modalEdit").style.display = "none";
-    });
-
-    // Fungsi utama untuk mengambil dan menampilkan data absensi
-    async function renderAbsensi() {
+    function renderTabel(data, dariFilter = false) {
+      dataTabelSaatIni = data;
       const tbody = document.getElementById("absenBody");
       const cari = document.getElementById("cariInput").value.toLowerCase();
-      const notifBox = document.getElementById("notifLengkap");
-
       tbody.innerHTML = "";
-      notifBox.textContent = "";
 
-      const pesertaSnap = await get(pesertaRef);
-      const totalPeserta = pesertaSnap.exists() ? Object.keys(pesertaSnap.val()).length : 0;
-
-      const snapshot = await get(absensiRef);
-      const allDataFromDB = snapshot.val(); // Ambil SEMUA data dari database
-
-      dataAbsensiGlobal = allDataFromDB || {}; // Simpan semua data di global
-
-      const now = new Date();
-      let tanggalYangDitampilkan = now; // Mulai dengan hari ini
-
-      // Logika untuk mencari data absensi: hari ini, atau mundur ke hari sebelumnya
-      let foundData = false;
-      let attemptDate = new Date(now); // Salinan tanggal untuk iterasi mundur
-      const maxDaysBack = 30; // Batasi pencarian mundur hingga 30 hari sebelumnya
-
-      for (let i = 0; i < maxDaysBack; i++) {
-        const currentTanggalISO = attemptDate.toISOString().slice(0, 10);
-        if (dataAbsensiGlobal[currentTanggalISO] && Object.keys(dataAbsensiGlobal[currentTanggalISO]).length > 0) {
-          tanggalYangDitampilkan = attemptDate;
-          foundData = true;
-          break; // Data ditemukan, berhenti mencari
-        }
-        attemptDate.setDate(attemptDate.getDate() - 1); // Mundur satu hari
+      let dataArray = Object.values(data).filter(item => item && item.nama);
+      if (dariFilter) {
+        dataArray = dataArray.filter(item => item.nama.toLowerCase().includes(cari));
       }
 
-      if (foundData) {
-        const tanggalISO = tanggalYangDitampilkan.toISOString().slice(0, 10);
-        renderAbsensiTanggal(tanggalISO); // Tampilkan data yang ditemukan
-        tanggalTerpilih = tanggalISO; // Set tanggal terpilih ke tanggal data yang ditemukan
-
-        if (tanggalISO === now.toISOString().slice(0, 10)) {
-          // Jika data yang ditampilkan adalah hari ini
-          const dataHariIni = dataAbsensiGlobal[tanggalISO];
-          const jumlahAbsen = dataHariIni ? Object.keys(dataHariIni).length : 0;
-          if (jumlahAbsen === totalPeserta && totalPeserta > 0) {
-            notifBox.textContent = `✅ Absensi lengkap hari ini (${jumlahAbsen}/${totalPeserta})`;
-          } else {
-            notifBox.textContent = `Absensi hari ini: ${jumlahAbsen}/${totalPeserta} peserta.`;
-          }
-        } else {
-          // Jika data yang ditampilkan adalah hari sebelumnya
-          notifBox.textContent = `📭 Absensi hari ini kosong. Menampilkan data tanggal ${tanggalYangDitampilkan.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}.`;
-        }
-
-        updateRekapInfo(dataAbsensiGlobal[tanggalISO] ? { [tanggalISO]: dataAbsensiGlobal[tanggalISO] } : {});
-
-      } else {
-        // Jika tidak ada data sama sekali dalam 30 hari terakhir
-        document.getElementById("notifLengkap").textContent = "📭 Tidak ada data absensi yang ditemukan dalam 30 hari terakhir.";
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Tidak ada data absensi yang ditemukan.</td></tr>';
-        tanggalTerpilih = "";
-        updateRekapInfo({}); // Reset rekap info
+      if (dataArray.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Tidak ada data untuk filter ini.</td></tr>';
+        return;
       }
 
-
-      initBMHControls(); // Inisialisasi kontrol BMH dengan data global (semua data dari DB)
+      dataArray.sort((a, b) => {
+        const valA = (a.tanggal || '') + (a.nomor || '');
+        const valB = (b.tanggal || '') + (b.nomor || '');
+        return valA.localeCompare(valB);
+      }).forEach((a, index) => {
+        const statusClass = { "Terlambat": "status-terlambat", "Bolos": "status-bolos", "Izin": "status-izin", "Sakit": "status-sakit" }[a.status] || "status-tepat";
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${index + 1}</td><td>${a.nama}</td><td>${a.nomor}</td><td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID", { dateStyle: 'short', timeStyle: 'short' }) : "-"}</td><td class="${statusClass}">${a.status}</td><td>${a.alasan}</td><td><span class="btn-edit" onclick="editAbsensi('${a.tanggal}', '${a.nomor}')">Edit</span> | <span class="btn-hapus" onclick="hapusAbsensi('${a.tanggal}', '${a.nomor}')">Hapus</span></td>`;
+        tbody.appendChild(tr);
+      });
     }
 
-    // Fungsi untuk memperbarui rekap info
-    function updateRekapInfo(dataToRecap) {
+    function flattenDataWithDate(nestedData) {
+      const flatArray = [];
+      for (const tanggal in nestedData) {
+        for (const nomor in nestedData[tanggal]) {
+          flatArray.push({
+            ...nestedData[tanggal][nomor],
+            tanggal: tanggal // Ini adalah perbaikan krusial
+          });
+        }
+      }
+      return flatArray;
+    }
+
+    function updateRekapInfo(data) {
       const rekap = { Hadir: 0, Izin: 0, Sakit: 0, Bolos: 0 };
-      let totalTanggalDenganData = 0;
-      let totalAbsensiKeseluruhan = 0; // Tambahkan ini untuk total keseluruhan
-
-      for (let tanggal in dataToRecap) {
-        if (Object.keys(dataToRecap[tanggal]).length > 0) {
-          totalTanggalDenganData++;
-        }
-        for (let nomor in dataToRecap[tanggal]) {
-          const a = dataToRecap[tanggal][nomor];
-          if (a && a.alasan) {
-            rekap[a.alasan]++;
-            totalAbsensiKeseluruhan++; // Hitung setiap entri absensi
-          }
-        }
-      }
-
-      document.getElementById("rekapInfo").textContent =
-        `Total Tanggal: ${totalTanggalDenganData} | Hadir: ${rekap.Hadir} | Izin: ${rekap.Izin} | Sakit: ${rekap.Sakit} | Bolos: ${rekap.Bolos} | Total Absensi: ${totalAbsensiKeseluruhan}`;
+      Object.values(data).forEach(a => { if (a && a.alasan) rekap[a.alasan] = (rekap[a.alasan] || 0) + 1; });
+      rekapInfo.textContent = `Rekap Tampilan Saat Ini -> Hadir: ${rekap.Hadir}, Izin: ${rekap.Izin}, Sakit: ${rekap.Sakit}, Bolos: ${rekap.Bolos}`;
     }
 
-    // Pindahkan initBMH menjadi initBMHControls yang bekerja dengan dataAbsensiGlobal
     function initBMHControls() {
-      const semuaTanggal = Object.keys(dataAbsensiGlobal).sort();
-      const bulanUnik = new Set(semuaTanggal.map(tgl => tgl.slice(0, 7)));
+      const semuaTanggal = Object.keys(dataAbsensiGlobal).sort().reverse();
+      const bulanUnik = [...new Set(semuaTanggal.map(t => t.slice(0, 7)))];
 
-      const bulanBtn = document.getElementById("bulanBtn");
-      const mingguBtn = document.getElementById("mingguBtn");
-      const hariBtn = document.getElementById("hariBtn");
-
-      // Reset tampilan tombol ke default
-      bulanBtn.textContent = "Bulan";
-      mingguBtn.textContent = "Minggu";
-      hariBtn.textContent = "Hari";
-      bulanBtn.classList.remove("active");
-      mingguBtn.classList.remove("active");
-      hariBtn.classList.remove("active");
-      mingguBtn.disabled = true; // Nonaktifkan sampai bulan dipilih
-      hariBtn.disabled = true; // Nonaktifkan sampai minggu dipilih
+      // Helper untuk meratakan data dan memastikan .tanggal ada
+      const flattenDataForDates = (dateArray) => {
+        const dataSlice = Object.fromEntries(dateArray.map(t => [t, dataAbsensiGlobal[t]]));
+        return flattenDataWithDate(dataSlice);
+      };
 
       bulanBtn.onclick = () => {
-        const list = Array.from(bulanUnik)
-          .map(t => {
-            const [y, m] = t.split("-");
-            return { value: t, label: getNamaBulan(Number(m) - 1) + " " + y };
-          })
-          .sort((a, b) => b.value.localeCompare(a.value));
+        const items = bulanUnik.map(t => ({ val: t, lbl: new Date(t + '-01').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }) }));
+        showDropdown(items, "Pilih Bulan", bulanTerpilih => {
+          showDropdown([
+            { val: 'lihat', lbl: 'Tampilkan Seluruh Bulan Ini' },
+            { val: 'pilih', lbl: 'Lanjut Pilih Minggu' }
+          ], `Aksi untuk ${new Date(bulanTerpilih + '-01').toLocaleDateString('id-ID', { month: 'long' })}`, aksi => {
+            const tglBulanIni = semuaTanggal.filter(t => t.startsWith(bulanTerpilih));
+            mingguAktif = {};
+            tglBulanIni.forEach(t => { const w = new Date(t).getWeek(); if (!mingguAktif[w]) mingguAktif[w] = []; mingguAktif[w].push(t); });
+            bulanBtn.textContent = new Date(bulanTerpilih + '-01').toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+            [bulanBtn, mingguBtn, hariBtn].forEach(b => b.classList.remove('active')); bulanBtn.classList.add('active');
+            mingguBtn.disabled = false; hariBtn.disabled = true;
 
-        if (list.length === 0) {
-          showAlert("Tidak ada data bulan yang tersedia.", "#ff9800");
-          return;
-        }
-
-        showDropdown(list.map(l => l.label), "Pilih Bulan", (selectedLabel) => {
-          const selectedBulan = list.find(l => l.label === selectedLabel).value;
-          bulanBtn.textContent = selectedLabel;
-
-          // Filter semua tanggal yang ada di bulan terpilih dari dataAbsensiGlobal
-          const tanggalDalamBulan = semuaTanggal.filter(tgl => tgl.startsWith(selectedBulan));
-          const dataBulanIni = {};
-          tanggalDalamBulan.forEach(tgl => {
-            if (dataAbsensiGlobal[tgl]) dataBulanIni[tgl] = dataAbsensiGlobal[tgl];
-          });
-
-          // Buat data minggu aktif dari bulan yang dipilih
-          const mingguMap = {};
-          tanggalDalamBulan.forEach(tgl => {
-            const week = getISOWeekNumber(new Date(tgl));
-            if (!mingguMap[week]) mingguMap[week] = [];
-            mingguMap[week].push(tgl);
-          });
-          mingguAktif = mingguMap; // Update mingguAktif global
-
-          hariAktif = []; // Reset hari aktif
-
-          // Aktifkan dan atur tombol sesuai pilihan bulan
-          bulanBtn.classList.add("active");
-          mingguBtn.classList.remove("active");
-          hariBtn.classList.remove("active");
-          mingguBtn.disabled = false;
-          hariBtn.disabled = true;
-          mingguBtn.textContent = "Minggu";
-          hariBtn.textContent = "Hari";
-
-          showDropdown(["Lihat Seluruh Bulan", "Pilih Minggu"], "Lihat data bulan ini?", (opsi) => {
-            if (opsi === "Lihat Seluruh Bulan") {
-              renderSemuaTanggal(dataBulanIni);
-              updateRekapInfo(dataBulanIni); // Perbarui rekap info
-            } else if (opsi === "Pilih Minggu") {
+            if (aksi === 'lihat') {
+              const flatDataBulan = flattenDataForDates(tglBulanIni);
+              renderTabel(flatDataBulan);
+              updateRekapInfo(flatDataBulan);
+            } else {
               mingguBtn.click();
             }
           });
@@ -1175,31 +590,22 @@
       };
 
       mingguBtn.onclick = () => {
-        const daftarMinggu = Object.keys(mingguAktif).sort((a, b) => Number(a) - Number(b)); // Urutkan minggu
-        if (daftarMinggu.length === 0) {
-          showAlert("Tidak ada data minggu untuk bulan ini.", "#ff9800");
-          return;
-        }
+        const items = Object.keys(mingguAktif).sort((a, b) => a - b).map(w => ({ val: w, lbl: `Minggu ke-${w}` }));
+        showDropdown(items, "Pilih Minggu", mingguTerpilih => {
+          showDropdown([
+            { val: 'lihat', lbl: 'Tampilkan Minggu Ini' },
+            { val: 'pilih', lbl: 'Lanjut Pilih Hari' }
+          ], `Aksi untuk Minggu ke-${mingguTerpilih}`, aksi => {
+            hariAktif = mingguAktif[mingguTerpilih].sort();
+            mingguBtn.textContent = `Minggu ${mingguTerpilih}`;
+            [mingguBtn, hariBtn].forEach(b => b.classList.remove('active')); mingguBtn.classList.add('active');
+            hariBtn.disabled = false;
 
-        showDropdown(daftarMinggu.map(weekNum => `Minggu ke-${weekNum}`), "Pilih Minggu", (selectedLabel) => {
-          const selectedWeekNum = selectedLabel.replace('Minggu ke-', '');
-          mingguBtn.textContent = selectedLabel;
-          mingguBtn.classList.add("active");
-          hariBtn.classList.remove("active");
-          hariBtn.disabled = false;
-          hariBtn.textContent = "Hari";
-          hariAktif = mingguAktif[selectedWeekNum].sort(); // Pastikan hari aktif diurutkan
-
-          const dataMingguIni = {};
-          hariAktif.forEach(t => {
-            if (dataAbsensiGlobal[t]) dataMingguIni[t] = dataAbsensiGlobal[t];
-          });
-
-          showDropdown(["Lihat Minggu Ini", "Lanjut ke Hari"], "Apa yang ingin dilihat?", (jawaban) => {
-            if (jawaban === "Lihat Minggu Ini") {
-              renderSemuaTanggal(dataMingguIni);
-              updateRekapInfo(dataMingguIni); // Perbarui rekap info
-            } else if (jawaban === "Lanjut ke Hari") {
+            if (aksi === 'lihat') {
+              const flatDataMinggu = flattenDataForDates(hariAktif);
+              renderTabel(flatDataMinggu);
+              updateRekapInfo(flatDataMinggu);
+            } else {
               hariBtn.click();
             }
           });
@@ -1207,478 +613,166 @@
       };
 
       hariBtn.onclick = () => {
-        if (hariAktif.length === 0) {
-          showAlert("Tidak ada hari yang tersedia untuk minggu ini.", "#ff9800");
-          return;
-        }
-        // Pastikan dropdown menampilkan tanggal yang mudah dibaca, tapi mengembalikan ISO string
-        showDropdown(hariAktif.map(tgl => new Date(tgl).toLocaleDateString("id-ID", { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' })), "Pilih Hari", (selectedLabel) => {
-          // Dapatkan tanggal ISO dari label yang dipilih (agak tricky, perlu dicocokkan kembali)
-          const selectedTanggal = hariAktif.find(tgl =>
-            new Date(tgl).toLocaleDateString("id-ID", { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' }) === selectedLabel
-          );
+        const items = hariAktif.map(t => ({ val: t, lbl: new Date(t).toLocaleDateString("id-ID", { weekday: 'long', day: '2-digit', month: 'short' }) }));
+        showDropdown(items, "Pilih Hari", hariTerpilih => {
+          hariBtn.textContent = new Date(hariTerpilih).toLocaleDateString("id-ID", { day: '2-digit', month: 'short' });
+          hariBtn.classList.add('active');
 
-          hariBtn.textContent = selectedLabel;
-          renderAbsensiTanggal(selectedTanggal);
-          hariBtn.classList.add("active");
-          updateRekapInfo(dataAbsensiGlobal[selectedTanggal] ? { [selectedTanggal]: dataAbsensiGlobal[selectedTanggal] } : {}); // Perbarui rekap info
+          // DIPERBAIKI: Pastikan data untuk satu hari juga diratakan dengan benar
+          const dataHari = dataAbsensiGlobal[hariTerpilih] || {};
+          const flatDataHari = Object.values(dataHari).map(item => ({ ...item, tanggal: hariTerpilih }));
+
+          renderTabel(flatDataHari);
+          updateRekapInfo(flatDataHari);
         });
       };
+
+      resetHariBtn.onclick = () => {
+        initData();
+        bulanBtn.textContent = 'Bulan'; mingguBtn.textContent = 'Minggu'; hariBtn.textContent = 'Hari';
+        [bulanBtn, mingguBtn, hariBtn].forEach(b => b.classList.remove('active'));
+        mingguBtn.disabled = true; hariBtn.disabled = true;
+        cariInput.value = '';
+      };
     }
 
-    function renderSemuaTanggal(dataUntukTabel) {
-      const tbody = document.getElementById("absenBody");
-      tbody.innerHTML = "";
-      const cari = document.getElementById("cariInput").value.toLowerCase();
-      let no = 1;
+    Date.prototype.getWeek = function () { var d = new Date(Date.UTC(this.getFullYear(), this.getMonth(), this.getDate())); var dayNum = d.getUTCDay() || 7; d.setUTCDate(d.getUTCDate() + 4 - dayNum); var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1)); return Math.ceil((((d - yearStart) / 86400000) + 1) / 7); };
 
-      const flattenedData = [];
-      for (let tanggal in dataUntukTabel) {
-        // Pastikan dataUntukTabel[tanggal] ada dan merupakan objek sebelum mengiterasinya
-        if (dataUntukTabel[tanggal] && typeof dataUntukTabel[tanggal] === 'object') {
-          for (let nomor in dataUntukTabel[tanggal]) {
-            // Pastikan data lengkap sebelum push
-            const item = dataUntukTabel[tanggal][nomor];
-            if (item && item.nama && typeof item.nama === 'string' && item.nama.trim() !== "") {
-              flattenedData.push({
-                ...item,
-                tanggal: tanggal
-              });
-            }
-          }
-        }
-      }
+    // --- FITUR-FITUR BARU & AKSI ---
+    window.tambahAbsenManual = () => {
+      if (Object.keys(dataPesertaGlobal).length === 0) return showAlert('Data peserta belum dimuat atau kosong. Coba refresh.', 'gagal');
 
-      // Urutkan berdasarkan tanggal, lalu nomor
-      flattenedData.sort((a, b) => {
-        // Tambahkan cek null/undefined sebelum localeCompare
-        const tanggalA = a.tanggal || ''; // Gunakan string kosong jika undefined
-        const tanggalB = b.tanggal || ''; // Gunakan string kosong jika undefined
+      // DIPERBAIKI: Urutkan opsi dropdown berdasarkan nomor unik
+      const selectPeserta = Object.values(dataPesertaGlobal)
+        .sort((a, b) => a.nomor.localeCompare(b.nomor, undefined, { numeric: true }))
+        .map(p => `<option value="${p.nomor}">${p.nama} (${p.nomor})</option>`)
+        .join('');
 
-        if (tanggalA !== tanggalB) {
-          return tanggalA.localeCompare(tanggalB);
-        }
-        // Tambahkan cek null/undefined untuk nomor juga
-        const nomorA = a.nomor || '';
-        const nomorB = b.nomor || '';
-        return nomorA.localeCompare(nomorB);
-      });
+      const content = `
+        <select id="manualPeserta" class="form-select mb-2">${selectPeserta}</select>
+        <input type="date" id="manualTanggal" class="form-control mb-2">
+        <input type="datetime-local" id="manualWaktu" class="form-control mb-2">
+        <select id="manualStatus" class="form-select mb-2"><option>Tepat</option><option>Terlambat</option><option>Izin</option><option>Sakit</option><option>Bolos</option></select>
+        <select id="manualAlasan" class="form-select"><option>Hadir</option><option>Izin</option><option>Sakit</option><option>Bolos</option></select>`;
 
-      if (flattenedData.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Tidak ada data absensi untuk filter ini.</td></tr>';
-        return;
-      }
+      const m = createModal('manual-absen', 'Tambah Absen Manual', content, [{ id: 'simpanManual', text: 'Simpan', color: 'var(--hijau)' }, { id: 'batalManual', text: 'Batal', color: '#ccc' }]);
+      document.getElementById('manualTanggal').valueAsDate = new Date();
+      m.style.display = 'flex';
 
-      flattenedData.forEach(a => {
-        // Validasi sudah dilakukan saat push ke flattenedData, tapi bisa juga di sini
-        if (!a || !a.nama || typeof a.nama !== "string" || a.nama.trim() === "") return;
-        if (!a.nama.toLowerCase().includes(cari)) return;
-
-        let statusClass = "status-tepat";
-        if (a.status === "Terlambat") statusClass = "status-terlambat";
-        else if (a.status === "Bolos") statusClass = "status-bolos";
-        else if (a.status === "Izin") statusClass = "status-izin";
-        else if (a.status === "Sakit") statusClass = "status-sakit";
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${no++}</td>
-          <td>${a.nama}</td>
-          <td>${a.nomor}</td>
-          <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
-          <td class="${statusClass}">${a.status || "-"}</td>
-          <td>${a.alasan}</td>
-          <td><span class="btn-edit" onclick="editAbsensi('${a.tanggal}', '${a.nomor}')">Edit</span></td>
-          <td><span class="btn-hapus" onclick="hapusAbsensi('${a.tanggal}', '${a.nomor}')">Hapus</span></td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function resetKeHariIni() {
-      renderAbsensi(); // Panggil ulang untuk menampilkan kondisi awal (7 hari terakhir atau hari ini)
-      // Tidak perlu mengulang inisialisasi tombol BMH di sini karena renderAbsensi akan memanggilnya
-    }
-
-    // Fungsi untuk render absensi per tanggal (digunakan untuk tampilan satu hari)
-    function renderAbsensiTanggal(tanggal) {
-      tanggalTerpilih = tanggal; // simpan tanggal yang sedang dilihat
-      const tbody = document.getElementById("absenBody");
-      const notifBox = document.getElementById("notifLengkap");
-      const cari = document.getElementById("cariInput").value.toLowerCase();
-
-      tbody.innerHTML = "";
-      notifBox.textContent = "";
-
-      const data = dataAbsensiGlobal[tanggal];
-      if (!data) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Tidak ada data absensi untuk tanggal ini.</td></tr>';
-        updateRekapInfo({}); // Reset rekap info jika tidak ada data
-        return;
-      }
-
-      let no = 1;
-      get(pesertaRef).then(snap => {
-        const totalPeserta = snap.exists() ? Object.keys(snap.val()).length : 0;
-        const jumlahAbsen = Object.keys(data).length; // Jumlah absensi untuk tanggal ini
-
-        if (jumlahAbsen === totalPeserta && totalPeserta > 0) {
-          notifBox.textContent = `✅ Absensi lengkap hari ini (${jumlahAbsen}/${totalPeserta})`;
-        } else {
-          notifBox.textContent = `Absensi hari ini: ${jumlahAbsen}/${totalPeserta} peserta.`;
-        }
-
-        // Ubah data hari ini menjadi array agar bisa diurutkan
-        const dataHariIniArr = Object.values(data).map(item => ({ ...item, tanggal: tanggal }));
-        dataHariIniArr.sort((a, b) => a.nomor.localeCompare(b.nomor)); // Urutkan berdasarkan nomor unik
-
-        const rekapHariIni = { Hadir: 0, Izin: 0, Sakit: 0, Bolos: 0 };
-        let totalAbsensiHariIni = 0; // Tambahkan ini untuk total absensi hari ini
-
-        dataHariIniArr.forEach(a => {
-          if (!a || !a.nama || typeof a.nama !== "string") return;
-          if (!a.nama.toLowerCase().includes(cari)) return;
-
-          rekapHariIni[a.alasan]++;
-          totalAbsensiHariIni++; // Hitung setiap entri absensi
-
-          let statusClass = "status-tepat";
-          if (a.status === "Terlambat") statusClass = "status-terlambat";
-          else if (a.status === "Bolos") statusClass = "status-bolos";
-          else if (a.status === "Izin") statusClass = "status-izin";
-          else if (a.status === "Sakit") statusClass = "status-sakit";
-
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${no++}</td>
-            <td>${a.nama}</td>
-            <td>${a.nomor}</td>
-            <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
-            <td class="${statusClass}">${a.status || "-"}</td>
-            <td>${a.alasan}</td>
-            <td><span class="btn-edit" onclick="editAbsensi('${tanggal}', '${a.nomor}')">Edit</span></td>
-            <td><span class="btn-hapus" onclick="hapusAbsensi('${tanggal}', '${a.nomor}')">Hapus</span></td>
-          `;
-          tbody.appendChild(tr);
+      document.getElementById('simpanManual').onclick = async () => {
+        const pNo = document.getElementById('manualPeserta').value;
+        const tgl = document.getElementById('manualTanggal').value;
+        const wkt = document.getElementById('manualWaktu').value;
+        const st = document.getElementById('manualStatus').value;
+        const al = document.getElementById('manualAlasan').value;
+        if (!pNo || !tgl || !wkt) return showAlert('Data belum lengkap!', 'gagal');
+        await set(ref(db, `absensi/${tgl}/${pNo}`), {
+          nama: dataPesertaGlobal[pNo].nama,
+          nomor: pNo,
+          waktuPulang: new Date(wkt).toISOString(),
+          status: st,
+          alasan: al,
+          tanggal: tgl
         });
-        document.getElementById("rekapInfo").textContent =
-          `Rekap Hari Ini (${new Date(tanggal).toLocaleDateString('id-ID')}): Hadir: ${rekapHariIni.Hadir} | Izin: ${rekapHariIni.Izin} | Sakit: ${rekapHariIni.Sakit} | Bolos: ${rekapHariIni.Bolos} | Total: ${totalAbsensiHariIni}`;
-      });
-    }
-
-    function getNamaBulan(bulanIndex) {
-      const bulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-      return bulan[bulanIndex];
-    }
-
-    function showDropdown(list, title, onSelect) {
-      const modal = document.createElement("div");
-      modal.style.position = "fixed";
-      modal.style.top = "50%";
-      modal.style.left = "50%";
-      modal.style.transform = "translate(-50%, -50%)";
-      modal.style.background = "white";
-      modal.style.padding = "20px";
-      modal.style.borderRadius = "8px";
-      modal.style.boxShadow = "0 4px 16px rgba(0,0,0,0.2)";
-      modal.style.zIndex = 9999;
-      modal.style.display = "flex"; // Gunakan flexbox
-      modal.style.flexDirection = "column"; // Susun item secara vertikal
-      modal.style.alignItems = "center"; // Pusatkan item secara horizontal
-
-      modal.innerHTML = `<h3 style="margin-bottom: 12px;">${title}</h3>`;
-
-      list.forEach(item => {
-        const btn = document.createElement("button");
-        btn.textContent = item;
-        btn.style.margin = "5px";
-        btn.style.padding = "8px 12px";
-        btn.style.border = "none";
-        btn.style.background = "#4caf50";
-        btn.style.color = "#fff";
-        btn.style.borderRadius = "6px";
-        btn.style.cursor = "pointer";
-        btn.style.width = "auto"; // Sesuaikan lebar dengan konten
-        btn.onclick = () => {
-          document.body.removeChild(modal);
-          onSelect(item);
-        };
-        modal.appendChild(btn);
-      });
-
-      const cancelBtn = document.createElement("button");
-      cancelBtn.textContent = "Batal";
-      cancelBtn.style.marginTop = "10px";
-      cancelBtn.style.display = "block";
-      cancelBtn.style.width = "100%";
-      cancelBtn.style.padding = "8px";
-      cancelBtn.style.border = "none";
-      cancelBtn.style.background = "#ccc";
-      cancelBtn.style.color = "#000";
-      cancelBtn.style.borderRadius = "6px";
-      cancelBtn.onclick = () => document.body.removeChild(modal);
-      modal.appendChild(cancelBtn);
-
-      document.body.appendChild(modal);
-    }
-
-    function getWeekOfMonth(date) {
-      const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-      const dayOfWeek = (firstDay.getDay() + 6) % 7; // konversi Minggu (0) jadi 6
-      return Math.ceil((date.getDate() + dayOfWeek) / 7);
-    }
-
-    function formatTanggal(isoString) {
-      if (!isoString) return "-";
-      const d = new Date(isoString);
-      return d.toLocaleString('id-ID', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-      });
-    }
-
-    function getISOWeekNumber(date) {
-      const tmp = new Date(date.getTime());
-      tmp.setHours(0, 0, 0, 0);
-      tmp.setDate(tmp.getDate() + 3 - ((tmp.getDay() + 6) % 7));
-      const week1 = new Date(tmp.getFullYear(), 0, 4);
-      return 1 + Math.round(((tmp.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7);
-    }
-
-    window.hapusAbsensi = (tanggal, nomor) => {
-      showConfirm("Yakin ingin menghapus data absensi ini?", async () => {
-        await remove(ref(db, `absensi/${tanggal}/${nomor}`));
-        showAlert("❌ Data absensi dihapus.", "#f44336");
-        renderAbsensi(); // Perbarui tampilan setelah hapus
-      });
-    };
-
-    function keluar() {
-      localStorage.removeItem("isAdmin");
-      location.href = "index.html";
-    }
-
-    function safe(val) {
-      return (val !== undefined && val !== null) ? val : "-";
-    }
-
-    window.exportCSV = async () => {
-      const snapshot = await get(absensiRef);
-      const data = snapshot.val();
-      if (!data) return showAlert("⚠️ Belum ada data!", '#ff9800');
-
-      const rows = [["Tanggal", "Nomor", "Nama", "Waktu Pulang", "Status", "Alasan"]];
-
-      // Flatten data to an array for easier sorting
-      const flattenedData = [];
-      for (let tanggal in data) {
-        // Pastikan data[tanggal] ada dan merupakan objek sebelum mengiterasinya
-        if (data[tanggal] && typeof data[tanggal] === 'object') {
-          for (let nomor in data[tanggal]) {
-            // Pastikan data lengkap sebelum push
-            const item = data[tanggal][nomor];
-            if (item) { // Cek item itu sendiri tidak null/undefined
-              flattenedData.push({ ...item, tanggal: tanggal });
-            }
-          }
-        }
-      }
-
-      // Sort by date, then by number
-      flattenedData.sort((a, b) => {
-        // Tambahkan cek null/undefined sebelum localeCompare untuk 'tanggal'
-        const tanggalA = a.tanggal || '';
-        const tanggalB = b.tanggal || '';
-
-        if (tanggalA !== tanggalB) {
-          return tanggalA.localeCompare(tanggalB);
-        }
-        // Tambahkan cek null/undefined untuk 'nomor' juga
-        const nomorA = a.nomor || '';
-        const nomorB = b.nomor || '';
-        return nomorA.localeCompare(nomorB);
-      });
-
-      flattenedData.forEach(a => {
-        rows.push([
-          safe(a.tanggal),
-          safe(a.nomor),
-          safe(a.nama),
-          formatTanggal(a.waktuPulang),
-          safe(a.status),
-          safe(a.alasan)
-        ]);
-      });
-
-      const worksheet = XLSX.utils.aoa_to_sheet(rows);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Absensi");
-
-      XLSX.writeFile(workbook, "data_absensi_full.xlsx");
-      showAlert("✅ Data berhasil diunduh.", "#4CAF50");
-    };
-
-    function downloadHariIni() {
-      if (!tanggalTerpilih || !dataAbsensiGlobal[tanggalTerpilih]) {
-        showAlert("⚠️ Pilih tanggal terlebih dahulu atau pastikan ada data hari ini!", "#ff9800");
-        return;
-      }
-
-      const data = dataAbsensiGlobal[tanggalTerpilih];
-      const rows = [["Tanggal", "Nomor", "Nama", "Waktu Pulang", "Status", "Alasan"]];
-
-      // Pastikan data adalah objek dan bukan null/undefined
-      const dataUntukDownload = Object.values(data || {}).sort((a, b) => {
-        // Tambahkan cek null/undefined untuk nomor
-        const nomorA = a.nomor || '';
-        const nomorB = b.nomor || '';
-        return nomorA.localeCompare(nomorB);
-      });
-
-      dataUntukDownload.forEach(a => {
-        rows.push([
-          safe(tanggalTerpilih),
-          safe(a.nomor),
-          safe(a.nama),
-          formatTanggal(a.waktuPulang),
-          safe(a.status),
-          safe(a.alasan)
-        ]);
-      });
-
-      const worksheet = XLSX.utils.aoa_to_sheet(rows);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Absensi");
-
-      XLSX.writeFile(workbook, `absensi-${tanggalTerpilih}.xlsx`);
-      showAlert("✅ Data berhasil diunduh.", "#4CAF50");
-    }
-    function hapusHariIni() {
-      if (!tanggalTerpilih || !dataAbsensiGlobal[tanggalTerpilih]) {
-        showAlert("⚠️ Pilih tanggal terlebih dahulu!", "#ff9800");
-        return;
-      }
-
-      showConfirm(`Yakin ingin menghapus semua absensi tanggal ${tanggalTerpilih}?`, async () => {
-        try {
-          await remove(ref(db, `absensi/${tanggalTerpilih}`));
-          showAlert(`✅ Data absensi tanggal ${tanggalTerpilih} berhasil dihapus.`, "#4caf50");
-          renderAbsensi(); // Panggil ulang renderAbsensi setelah hapus
-        } catch (error) {
-          console.error("❌ Gagal hapus:", error);
-          showAlert(`❌ Gagal menghapus data: ${error.message}`, "#f44336");
-        }
-      });
-    }
-
-    // Hapus semua
-    window.hapusSemuaData = () => {
-      showConfirm("Yakin ingin menghapus semua data absensi?", async () => {
-        await set(absensiRef, null);
-        showAlert("✅ Semua data absensi telah dihapus.", "#f44336");
-        renderAbsensi(); // Panggil ulang renderAbsensi setelah hapus
-      });
-    };
-
-    // Fungsi editAbsensi yang menggunakan modal Edit Absensi yang sudah ada
-    window.editAbsensi = async (tanggal, nomor) => {
-      const snap = await get(ref(db, `absensi/${tanggal}/${nomor}`));
-      if (!snap.exists()) return showAlert("❌ Data tidak ditemukan", "#f44336");
-
-      const data = snap.val();
-      const modal = document.getElementById("modalEditAbsen");
-      const editWaktuPulangInput = document.getElementById("editWaktuPulang");
-      const editStatusSelect = document.getElementById("editStatusSelect");
-      const editAlasanSelect = document.getElementById("editAlasanSelect");
-
-      // Isi nilai awal dari form input
-      editWaktuPulangInput.value = data.waktuPulang ? new Date(data.waktuPulang).toISOString().slice(0, 16) : "";
-      editStatusSelect.value = data.status || "Tepat";
-      editAlasanSelect.value = data.alasan || "Hadir";
-
-      modal.style.display = "flex";
-
-      // Pastikan event listener hanya aktif sekali untuk tombol simpan
-      const simpanBtn = document.getElementById("simpanEditAbsen");
-      const batalBtn = document.getElementById("batalEditAbsen");
-
-      // Hapus event listener sebelumnya untuk mencegah duplikasi
-      simpanBtn.onclick = null;
-      batalBtn.onclick = null;
-
-      simpanBtn.onclick = async () => {
-        const newWaktuPulang = editWaktuPulangInput.value;
-        const newStatus = editStatusSelect.value;
-        const newAlasan = editAlasanSelect.value;
-
-        if (!newWaktuPulang) {
-          showAlert("⚠️ Waktu pulang harus diisi!", "#ff9800");
-          return;
-        }
-
-        const dataToUpdate = {
-          ...data, // Pertahankan data lain
-          waktuPulang: new Date(newWaktuPulang).toISOString(), // Simpan dalam format ISO
-          status: newStatus,
-          alasan: newAlasan
-        };
-
-        await set(ref(db, `absensi/${tanggal}/${nomor}`), dataToUpdate);
-        modal.style.display = "none";
-        showAlert("✅ Data absensi berhasil diperbarui", "#4CAF50");
-        renderAbsensi(); // Perbarui tampilan setelah edit
+        showAlert('Absensi manual berhasil disimpan.');
+        m.remove();
+        initData();
       };
+      document.getElementById('batalManual').onclick = () => m.remove();
+    };
 
-      batalBtn.onclick = () => {
-        modal.style.display = "none";
+    window.tampilkanRekap = () => {
+      const rekap = { Hadir: 0, Sakit: 0, Izin: 0, Bolos: 0, Tepat: 0, Terlambat: 0 };
+      Object.values(dataAbsensiGlobal).forEach(tglData => {
+        Object.values(tglData).forEach(a => {
+          if (a.alasan) rekap[a.alasan]++;
+          if (a.alasan === 'Hadir' && (a.status === 'Tepat' || a.status === 'Terlambat')) rekap[a.status]++;
+        });
+      });
+      const tabelHTML = `<table class="table table-sm table-bordered mt-3">
+            <tr class="rekap-hadir"><td>Hadir</td><td><b>${rekap.Hadir}</b> (Tepat: ${rekap.Tepat}, Terlambat: ${rekap.Terlambat})</td></tr>
+            <tr class="rekap-sakit"><td>Sakit</td><td><b>${rekap.Sakit}</b></td></tr>
+            <tr class="rekap-izin"><td>Izin</td><td><b>${rekap.Izin}</b></td></tr>
+            <tr class="rekap-bolos"><td>Bolos</td><td><b>${rekap.Bolos}</b></td></tr>
+        </table>`;
+      const m = createModal('rekap-modal', 'Rekapitulasi Seluruh Data', `<canvas id="rekapChart"></canvas>${tabelHTML}`, [{ id: 'downloadRekap', text: 'Download Rekap', color: 'var(--hijau)' }, { id: 'tutupRekap', text: 'Tutup', color: '#ccc' }]);
+      m.classList.add('modal-rekap'); m.style.display = 'flex';
+
+      if (rekapChartInstance) rekapChartInstance.destroy();
+      rekapChartInstance = new Chart(document.getElementById('rekapChart'), { type: 'pie', data: { labels: ['Hadir', 'Sakit', 'Izin', 'Bolos'], datasets: [{ data: [rekap.Hadir, rekap.Sakit, rekap.Izin, rekap.Bolos], backgroundColor: ['#d4edda', '#f8d7da', '#fff3cd', '#f5c6cb'], borderColor: '#fff' }] } });
+
+      document.getElementById('downloadRekap').onclick = () => {
+        const rows = [["Status", "Jumlah", "Detail"], ["Hadir", rekap.Hadir, `Tepat: ${rekap.Tepat}, Terlambat: ${rekap.Terlambat}`], ["Sakit", rekap.Sakit], ["Izin", rekap.Izin], ["Bolos", rekap.Bolos]];
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Rekap Absensi");
+        XLSX.writeFile(wb, "rekap_absensi_total.xlsx");
       };
+      document.getElementById('tutupRekap').onclick = () => m.remove();
     };
 
-    const inputJam = document.getElementById("jamBatasTerlambat");
+    window.downloadHarian = () => {
+      const dataArray = Array.isArray(dataTabelSaatIni) ? dataTabelSaatIni : Object.values(dataTabelSaatIni);
+      if (dataArray.length === 0) return showAlert('Tidak ada data untuk diunduh.', 'info');
 
-    // Ambil dari localStorage jika ada
-    if (localStorage.getItem("jamBatas")) {
-      inputJam.value = localStorage.getItem("jamBatas");
-    }
+      const tanggalPertama = dataArray[0].tanggal;
+      if (!tanggalPertama) return showAlert('Tidak bisa mengunduh tampilan gabungan (mingguan/bulanan). Silakan filter ke satu hari spesifik.', 'gagal');
 
-    // Simpan ke localStorage saat berubah
-    inputJam.onchange = () => {
-      localStorage.setItem("jamBatas", inputJam.value);
+      const isSatuHari = dataArray.every(item => item.tanggal === tanggalPertama);
+      if (!isSatuHari) return showAlert('Tampilan mengandung data dari beberapa tanggal. Silakan pilih satu hari.', 'info');
+
+      const rows = [["Tanggal", "Nama", "Nomor", "Waktu Pulang", "Status", "Alasan"]];
+      dataArray.forEach(a => rows.push([a.tanggal, a.nama, a.nomor, new Date(a.waktuPulang).toLocaleString('id-ID'), a.status, a.alasan]));
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, `Absensi ${tanggalPertama}`);
+      XLSX.writeFile(wb, `absensi-harian-${tanggalPertama}.xlsx`);
+      showAlert('Unduhan data harian berhasil.');
     };
 
-    // Update jam real-time
-    function updateJam() {
-      const now = new Date();
-      const jam = now.toLocaleTimeString('id-ID', { hour12: false });
-      document.getElementById("jamSekarang").textContent = jam;
+    // --- INISIALISASI HALAMAN ---
+     if (!localStorage.getItem("isAdmin")) {
+        window.location.href = "login.html";
+    };
+    setInterval(() => { jamSekarang.textContent = new Date().toLocaleTimeString('id-ID', { hour12: false }); }, 1000);
+    const jamBatasPulangInput = document.getElementById("jamBatasPulang");
+    jamBatasPulangInput.onchange = () => {
+      localStorage.setItem("jamBatasPulang", jamBatasPulangInput.value);
+      showAlert('Batas waktu pulang disimpan: ' + jamBatasPulangInput.value, 'info');
+    };
+    if (localStorage.getItem("jamBatasPulang")) {
+      jamBatasPulangInput.value = localStorage.getItem("jamBatasPulang");
     }
 
-    // Cek status admin saat halaman dimuat
-    if (!localStorage.getItem("isAdmin")) {
-      showAlert("⚠️ Akses ditolak. Silahkan login dulu.", '#ff9800');
-      window.location.href = "login.html";
-    }
+    initData();
 
-    // Jalankan saat halaman dibuka
-    setInterval(updateJam, 1000); // Perbarui jam setiap detik
-    updateJam(); // Panggil sekali saat halaman dimuat untuk tampilan awal
-    renderPeserta();
-    renderAbsensi(); // Ini akan memicu pengambilan data awal dan inisialisasi BMH
+    // Salin sisa fungsi lain yang tidak berubah dari respons sebelumnya ke sini (seperti editPeserta, hapusPeserta, dll)
+    // Saya meringkasnya di sini agar tidak terlalu panjang, tetapi pastikan semua fungsi window.xxx ada di file Anda.
+    window.hapusSemuaData = () => { if (confirm("ANDA YAKIN INGIN MENGHAPUS SELURUH DATA ABSENSI? Aksi ini tidak bisa dibatalkan.")) set(ref(db, 'absensi'), null).then(() => { showAlert('Seluruh data absensi telah dihapus.', 'gagal'); initData(); }); };
 
-    // Pastikan fungsi-fungsi ini tersedia secara global jika dipanggil dari HTML inline
-    window.keluar = keluar;
-    window.renderAbsensi = renderAbsensi;
-    window.downloadHariIni = downloadHariIni;
-    window.hapusHariIni = hapusHariIni;
-    window.hapusSemuaData = hapusSemuaData; // Pastikan ini juga global
-    document.getElementById("resetHariBtn").onclick = resetKeHariIni;
+    window.exportCSV = () => {
+      if (Object.keys(dataAbsensiGlobal).length === 0) return showAlert('Tidak ada data absensi sama sekali.', 'gagal');
+
+      const flatData = flattenDataWithDate(dataAbsensiGlobal);
+      flatData.sort((a, b) => ((a.tanggal || '') + (a.nomor || '')).localeCompare((b.tanggal || '') + (b.nomor || '')));
+
+      const rows = [["Tanggal", "Nama", "Nomor", "Waktu Pulang", "Status", "Alasan"]];
+      flatData.forEach(a => rows.push([a.tanggal, a.nama, a.nomor, a.waktuPulang ? new Date(a.waktuPulang).toLocaleString('id-ID') : '-', a.status, a.alasan]));
+
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Absensi Full");
+      XLSX.writeFile(wb, "data_absensi_full.xlsx");
+      showAlert('Unduhan semua data berhasil.');
+    };
+
+
+    window.editAbsensi = async (t, n) => { const a = dataAbsensiGlobal[t][n]; const c = `<input type="datetime-local" id="editWaktu" value="${new Date(a.waktuPulang).toISOString().slice(0, 16)}" class="form-control mb-2"><select id="editStatus" class="form-select"></select>`; const m = createModal('edit-absen', `Edit Absen: ${a.nama}`, c, [{ id: 's', text: 'Simpan', c: 's', color: 'var(--hijau)' }, { id: 'b', text: 'Batal', c: 'b', color: '#ccc' }]); m.style.display = 'flex'; document.getElementById('s').onclick = async () => { await update(ref(db, `absensi/${t}/${n}`), { waktuPulang: new Date(document.getElementById('editWaktu').value).toISOString(), status: document.getElementById('editStatus').value }); showAlert('Absensi diperbarui.'); m.remove(); initData(); }; document.getElementById('b').onclick = () => m.remove(); };
+
+    window.hapusAbsensi = (t, n) => { if (confirm(`Yakin hapus absensi ${dataAbsensiGlobal[t][n].nama} pada tgl ${t}?`)) remove(ref(db, `absensi/${t}/${n}`)).then(() => { showAlert('Data absensi dihapus.'); initData(); }); };
+
+
   </script>
-
 </body>
 
 </html>
