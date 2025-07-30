@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin Absensi</title>
-    <link rel="icon" type="image/png" href="icon-absensi.png">
+  <link rel="icon" type="image/png" href="icon-absensi.png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     :root {
@@ -639,6 +639,80 @@
 
     Date.prototype.getWeek = function () { var d = new Date(Date.UTC(this.getFullYear(), this.getMonth(), this.getDate())); var dayNum = d.getUTCDay() || 7; d.setUTCDate(d.getUTCDate() + 4 - dayNum); var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1)); return Math.ceil((((d - yearStart) / 86400000) + 1) / 7); };
 
+    // --- FUNGSI UNTUK EDIT & HAPUS PESERTA ---
+
+    // Helper untuk menampilkan modal konfirmasi yang lebih bagus
+    function showConfirm(pesan, onYes) {
+      const id = 'confirm-modal';
+      let existingModal = document.getElementById(id);
+      if (existingModal) existingModal.remove();
+
+      const content = `<p class="text-center my-3">${pesan}</p>`;
+      const actions = [
+        { id: 'confirm-no', text: 'Tidak', color: '#6c757d' },
+        { id: 'confirm-yes', text: 'Ya, Lanjutkan', color: 'var(--merah)' }
+      ];
+      const modal = createModal(id, 'Konfirmasi', content, actions);
+      modal.style.display = 'flex';
+
+      document.getElementById('confirm-yes').onclick = () => {
+        onYes();
+        modal.remove();
+      };
+      document.getElementById('confirm-no').onclick = () => modal.remove();
+    }
+
+    // Fungsi untuk Edit Peserta
+    window.editPeserta = async (nomor) => {
+      const id = 'edit-peserta-modal';
+      const peserta = dataPesertaGlobal[nomor];
+      if (!peserta) return showAlert('Data peserta tidak ditemukan.', 'gagal');
+
+      const content = `
+        <div class="form-group mb-2">
+            <label for="editNama" class="form-label">Nama Peserta</label>
+            <input id="editNama" value="${peserta.nama}" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="editNomor" class="form-label">Nomor Unik</label>
+            <input id="editNomor" value="${peserta.nomor}" class="form-control" disabled>
+            <small class="form-text text-muted">Nomor unik tidak dapat diubah.</small>
+        </div>`;
+      const actions = [
+        { id: 'batal-edit', text: 'Batal', color: '#6c757d' },
+        { id: 'simpan-edit', text: 'Simpan Perubahan', color: 'var(--hijau)' }
+      ];
+      const modal = createModal(id, 'Edit Data Peserta', content, actions);
+      modal.style.display = 'flex';
+
+      document.getElementById('batal-edit').onclick = () => modal.remove();
+      document.getElementById('simpan-edit').onclick = async () => {
+        const namaBaru = document.getElementById('editNama').value.trim();
+        if (!namaBaru) return showAlert('Nama tidak boleh kosong.', 'gagal');
+
+        await update(ref(db, `peserta/${nomor}`), { nama: namaBaru });
+        showAlert('Data peserta berhasil diperbarui.');
+        modal.remove();
+        initData(); // Muat ulang data untuk menampilkan perubahan
+      };
+    };
+
+    // Fungsi untuk Hapus Peserta
+    window.hapusPeserta = (nomor) => {
+      const namaPeserta = dataPesertaGlobal[nomor]?.nama || 'peserta ini';
+      showConfirm(`Anda yakin ingin menghapus <strong>${namaPeserta}</strong>? Tindakan ini tidak bisa dibatalkan.`, () => {
+        remove(ref(db, `peserta/${nomor}`))
+          .then(() => {
+            showAlert('Peserta berhasil dihapus.');
+            initData(); // Muat ulang data untuk menampilkan perubahan
+          })
+          .catch(err => {
+            showAlert('Gagal menghapus peserta.', 'gagal');
+            console.error(err);
+          });
+      });
+    };
+
     // --- FITUR-FITUR BARU & AKSI ---
     window.tambahAbsenManual = () => {
       if (Object.keys(dataPesertaGlobal).length === 0) return showAlert('Data peserta belum dimuat atau kosong. Coba refresh.', 'gagal');
@@ -799,8 +873,19 @@
 
     // Salin sisa fungsi lain yang tidak berubah dari respons sebelumnya ke sini (seperti editPeserta, hapusPeserta, dll)
     // Saya meringkasnya di sini agar tidak terlalu panjang, tetapi pastikan semua fungsi window.xxx ada di file Anda.
-    window.hapusSemuaData = () => { if (confirm("ANDA YAKIN INGIN MENGHAPUS SELURUH DATA ABSENSI? Aksi ini tidak bisa dibatalkan.")) set(ref(db, 'absensi'), null).then(() => { showAlert('Seluruh data absensi telah dihapus.', 'gagal'); initData(); }); };
-
+    window.hapusSemuaData = () => {
+      showConfirm('<strong>PERINGATAN!</strong> Anda yakin ingin menghapus <strong>SELURUH</strong> data absensi? Tindakan ini tidak dapat dibatalkan.', () => {
+        set(ref(db, 'absensi'), null)
+          .then(() => {
+            showAlert('Seluruh data absensi telah dihapus.', 'info');
+            initData();
+          })
+          .catch(err => {
+            showAlert('Gagal menghapus semua data.', 'gagal');
+            console.error(err);
+          });
+      });
+    };
     window.exportCSV = () => {
       if (Object.keys(dataAbsensiGlobal).length === 0) return showAlert('Tidak ada data absensi sama sekali.', 'gagal');
 
@@ -820,8 +905,20 @@
 
     window.editAbsensi = async (t, n) => { const a = dataAbsensiGlobal[t][n]; const c = `<input type="datetime-local" id="editWaktu" value="${new Date(a.waktuPulang).toISOString().slice(0, 16)}" class="form-control mb-2"><select id="editStatus" class="form-select"></select>`; const m = createModal('edit-absen', `Edit Absen: ${a.nama}`, c, [{ id: 's', text: 'Simpan', c: 's', color: 'var(--hijau)' }, { id: 'b', text: 'Batal', c: 'b', color: '#ccc' }]); m.style.display = 'flex'; document.getElementById('s').onclick = async () => { await update(ref(db, `absensi/${t}/${n}`), { waktuPulang: new Date(document.getElementById('editWaktu').value).toISOString(), status: document.getElementById('editStatus').value }); showAlert('Absensi diperbarui.'); m.remove(); initData(); }; document.getElementById('b').onclick = () => m.remove(); };
 
-    window.hapusAbsensi = (t, n) => { if (confirm(`Yakin hapus absensi ${dataAbsensiGlobal[t][n].nama} pada tgl ${t}?`)) remove(ref(db, `absensi/${t}/${n}`)).then(() => { showAlert('Data absensi dihapus.'); initData(); }); };
-
+    window.hapusAbsensi = (tanggal, nomor) => {
+      const namaPeserta = dataAbsensiGlobal[tanggal]?.[nomor]?.nama || 'data ini';
+      showConfirm(`Anda yakin ingin menghapus data absensi milik <strong>${namaPeserta}</strong> pada tanggal ${tanggal}?`, () => {
+        remove(ref(db, `absensi/${tanggal}/${nomor}`))
+          .then(() => {
+            showAlert('Data absensi berhasil dihapus.');
+            initData();
+          })
+          .catch(err => {
+            showAlert('Gagal menghapus data.', 'gagal');
+            console.error(err);
+          });
+      });
+    };
 
   </script>
 </body>
