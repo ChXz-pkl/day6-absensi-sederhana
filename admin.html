@@ -295,7 +295,7 @@
 
 <body style="display: flex; flex-direction: column; min-height: 100vh;">
   <div class="container">
-     <div class="header-container">
+    <div class="header-container">
       <button onclick="logout()" style="background-color: var(--merah);">Kembali</button>
       <h2>Dasbor Admin</h2>
       <div class="jam-atas" id="jamSekarang">--:--:--</div>
@@ -459,32 +459,6 @@
       };
     }
 
-    document.getElementById('tambahPeserta').addEventListener('click', async () => {
-    const nama = document.getElementById('namaPeserta').value.trim();
-    const nomor = document.getElementById('nomorPeserta').value.trim();
-
-    if (!nama || !nomor) {
-        showAlert("⚠️ Nama dan nomor tidak boleh kosong!", "#ff9800");
-        return;
-    }
-
-    // Cek duplikat nomor
-    const snapshot = await get(ref(db, 'peserta'));
-    const data = snapshot.val() || {};
-    const nomorSudahAda = Object.values(data).some(p => p.nomor === nomor);
-    if (nomorSudahAda) {
-        showAlert("⚠️ Nomor peserta sudah digunakan!", "#ff9800");
-        return;
-    }
-
-    // Jika valid, lanjut push
-    const newRef = push(ref(db, 'peserta'));
-    await set(newRef, { nama, nomor });
-
-    showAlert("✅ Peserta berhasil ditambahkan!", "#4caf50");
-    document.getElementById('modalTambahPeserta').classList.add('hidden');
-    muatPeserta();
-});
     // --- RENDER & FILTER DATA ABSENSI (LOGIKA DIPERBAIKI) ---
     async function initData() {
       // DIPERBAIKI: Mengambil data peserta dan absensi secara bersamaan
@@ -757,8 +731,8 @@
     };
 
     // --- INISIALISASI HALAMAN ---
-     if (!localStorage.getItem("isAdmin")) {
-        window.location.href = "login.html";
+    if (!localStorage.getItem("isAdmin")) {
+      window.location.href = "login.html";
     };
     setInterval(() => { jamSekarang.textContent = new Date().toLocaleTimeString('id-ID', { hour12: false }); }, 1000);
     const jamBatasPulangInput = document.getElementById("jamBatasPulang");
@@ -771,6 +745,56 @@
     }
 
     initData();
+
+    // --- FUNGSI TAMBAH PESERTA ---
+    const formTambah = document.getElementById('formTambah');
+    formTambah.addEventListener('submit', async (e) => {
+      e.preventDefault(); // Mencegah halaman reload
+
+      const nama = document.getElementById('namaBaru').value.trim();
+      const nomor = document.getElementById('nomorBaru').value.trim();
+      const file = document.getElementById('fotoBaru').files[0];
+
+      if (!nama || !nomor || !file) {
+        showAlert('Harap lengkapi semua kolom!', 'gagal');
+        return;
+      }
+
+      // Tampilkan pesan loading
+      const submitButton = formTambah.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+      submitButton.textContent = 'Menyimpan...';
+
+      // Ubah gambar menjadi format base64
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = async () => {
+        const fotoBase64 = reader.result;
+        try {
+          // Simpan data ke Firebase
+          await set(ref(db, `peserta/${nomor}`), {
+            nama: nama,
+            nomor: nomor,
+            foto: fotoBase64
+          });
+          showAlert('Peserta berhasil ditambahkan!');
+          formTambah.reset(); // Kosongkan form
+          initData(); // Muat ulang semua data untuk memperbarui tampilan
+        } catch (error) {
+          console.error("Gagal menambah peserta:", error);
+          showAlert('Terjadi kesalahan saat menyimpan data.', 'gagal');
+        } finally {
+          // Kembalikan tombol ke keadaan semula
+          submitButton.disabled = false;
+          submitButton.textContent = 'Tambah Peserta';
+        }
+      };
+      reader.onerror = () => {
+        showAlert('Gagal memproses gambar.', 'gagal');
+        submitButton.disabled = false;
+        submitButton.textContent = 'Tambah Peserta';
+      };
+    });
 
     // Salin sisa fungsi lain yang tidak berubah dari respons sebelumnya ke sini (seperti editPeserta, hapusPeserta, dll)
     // Saya meringkasnya di sini agar tidak terlalu panjang, tetapi pastikan semua fungsi window.xxx ada di file Anda.
@@ -797,7 +821,6 @@
 
     window.hapusAbsensi = (t, n) => { if (confirm(`Yakin hapus absensi ${dataAbsensiGlobal[t][n].nama} pada tgl ${t}?`)) remove(ref(db, `absensi/${t}/${n}`)).then(() => { showAlert('Data absensi dihapus.'); initData(); }); };
 
-    
 
   </script>
 </body>
