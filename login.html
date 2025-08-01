@@ -102,9 +102,15 @@
       transition: background 0.3s ease, transform 0.2s ease;
     }
 
-    button:hover {
+    button:hover:not(:disabled) { /* Added :not(:disabled) */
       background-color: var(--warna-biru-tua);
       transform: translateY(-2px);
+    }
+
+    button:disabled { /* Style for disabled button */
+        background-color: #cccccc;
+        cursor: not-allowed;
+        transform: none;
     }
 
     .form-check {
@@ -135,7 +141,6 @@
       top: 16px;
       left: 20px;
       width: auto;
-      /* <-- TAMBAHKAN BARIS INI */
       background: var(--warna-merah);
       padding: 6px 12px;
       border-radius: 12px;
@@ -148,9 +153,7 @@
 
     .btn-pojok:hover {
       background-color: #d32f2f;
-      /* Merah lebih gelap saat disentuh */
       transform: none;
-      /* Menghapus efek hover naik */
     }
 
     footer {
@@ -200,7 +203,7 @@
         <input type="checkbox" id="showPassword" onclick="togglePassword()">
         <label for="showPassword">Tampilkan Password</label>
       </div>
-      <button onclick="login()">Masuk</button>
+      <button id="loginBtn" onclick="login()">Masuk</button>
       <div class="error" id="errorMsg"></div>
     </div>
   </main>
@@ -229,26 +232,56 @@
       { username: "Chandrx", password: "chandrx28" }
     ];
 
+    let errorTimeout; // Variabel untuk menyimpan timeout pesan error
+
     function login() {
       const user = document.getElementById("username").value.trim();
       const pass = document.getElementById("password").value;
-      const error = document.getElementById("errorMsg");
+      const errorMsg = document.getElementById("errorMsg");
+      const loginBtn = document.getElementById("loginBtn");
 
-      const found = ADMIN_ACCOUNTS.find(account =>
-        account.username === user && account.password === pass
-      );
+      // Bersihkan pesan error sebelumnya dan timeout
+      clearTimeout(errorTimeout);
+      errorMsg.textContent = ""; 
 
-      if (found) {
-        localStorage.setItem("isAdmin", "true");
-        localStorage.setItem("adminUser", user);
-        location.href = "admin.html";
-      } else {
-        error.textContent = "❌ Username atau password salah!";
-      }
+      // Nonaktifkan tombol dan ubah teks
+      loginBtn.disabled = true;
+      loginBtn.textContent = "Memproses...";
+
+      // Simulasi delay atau proses autentikasi
+      setTimeout(() => {
+        const found = ADMIN_ACCOUNTS.find(account =>
+          account.username === user && account.password === pass
+        );
+
+        if (found) {
+          localStorage.setItem("isAdmin", "true");
+          localStorage.setItem("adminUser", user);
+          errorMsg.textContent = "✅ Berhasil masuk!";
+          errorMsg.style.color = "green";
+          setTimeout(() => {
+            location.href = "admin.html";
+          }, 500); // Redirect setelah pesan sukses singkat
+        } else {
+          errorMsg.textContent = "❌ Username atau password salah!";
+          errorMsg.style.color = "var(--warna-merah)";
+          // Atur timeout untuk membersihkan pesan error
+          errorTimeout = setTimeout(() => {
+            errorMsg.textContent = "";
+          }, 3000); // Pesan akan hilang setelah 3 detik
+        }
+
+        // Aktifkan kembali tombol dan kembalikan teks
+        loginBtn.disabled = false;
+        loginBtn.textContent = "Masuk";
+      }, 500); // Simulasi waktu proses 0.5 detik
     }
 
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") login();
+      if (e.key === "Enter") {
+        e.preventDefault(); // Mencegah submit form default
+        login();
+      }
     });
   </script>
 
