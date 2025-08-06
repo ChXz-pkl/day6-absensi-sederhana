@@ -7,8 +7,6 @@
     <title>Absensi Peserta</title>
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="icon" type="image/png" href="icon-absensi.png">
-
     <style>
         /* ===== RESET & GLOBAL ===== */
         html,
@@ -169,12 +167,6 @@
         .preview-foto {
             text-align: center;
             margin: 16px 0;
-            min-height: 100px; /* Ensure space for preview */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
         }
 
         .preview-foto img {
@@ -292,41 +284,6 @@
 
         }
 
-        /* Loading Overlay Styles */
-        #loadingOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1001; /* Higher than other elements */
-            visibility: hidden;
-            opacity: 0;
-            transition: visibility 0s, opacity 0.3s linear;
-        }
-
-        #loadingOverlay.show {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border-left-color: #4caf50; /* Green color for spinner */
-            animation: spin 1s ease infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
 
 
         /* ===== RESPONSIVE ===== */
@@ -500,7 +457,7 @@
 
                     <div id="previewPeserta" class="preview-foto"></div>
 
-                    <!-- <button type="button" id="btnMasuk">Absen Masuk</button> -->
+                    <button type="button" id="btnMasuk">Absen Masuk</button>
                     <button type="button" id="btnPulang">Absen Pulang</button>
                     <div class="status" id="statusPesan"></div>
                 </form>
@@ -536,11 +493,6 @@
                 target="_blank" class="text-info text-decoration-none">Chandra </a></p>
     </footer>
 
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay">
-        <div class="spinner"></div>
-    </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
         import {
@@ -564,336 +516,237 @@
         const pesertaRef = ref(db, 'peserta');
         const absensiRef = ref(db, 'absensi');
 
-        // Elemen DOM
-        const nomorInput = document.getElementById("nomorInput");
-        const alasanInput = document.getElementById("alasanInput");
-        const statusPesan = document.getElementById("statusPesan");
-        const previewPeserta = document.getElementById("previewPeserta");
-        const btnPulang = document.getElementById("btnPulang");
-        const loadingOverlay = document.getElementById('loadingOverlay');
-
-        // Fungsi untuk menampilkan loading overlay
-        function showLoading() {
-            loadingOverlay.classList.add('show');
-        }
-
-        // Fungsi untuk menyembunyikan loading overlay
-        function hideLoading() {
-            loadingOverlay.classList.remove('show');
-        }
-
         // Load daftar peserta
         async function loadPeserta() {
-            showLoading();
-            try {
-                const snap = await get(pesertaRef);
-                const list = document.getElementById("daftarPeserta");
-                list.innerHTML = "";
-                if (snap.exists()) {
-                    const pesertaData = snap.val();
-                    const now = new Date();
-                    const tanggalHariIni = now.toISOString().slice(0, 10);
-                    const todayAbsensiSnap = await get(child(absensiRef, tanggalHariIni));
-                    const absentToday = todayAbsensiSnap.exists() ? todayAbsensiSnap.val() : {};
-
-                    // Urutkan peserta berdasarkan nomor unik
-                    const sortedPeserta = Object.entries(pesertaData).sort(([nomorA], [nomorB]) => 
-                        nomorA.localeCompare(nomorB, undefined, { numeric: true })
-                    );
-
-                    sortedPeserta.forEach(([nomor, p]) => {
-                        // Hanya tambahkan jika peserta belum absen hari ini
-                        if (!absentToday[nomor] || !absentToday[nomor].waktuPulang) {
-                            const li = document.createElement("li");
-                            li.textContent = `${p.nama} (${nomor})`;
-                            list.appendChild(li);
-                        }
-                    });
-                    return pesertaData; // Mengembalikan data peserta untuk penggunaan lain
-                }
-                return {}; // Mengembalikan objek kosong jika tidak ada data
-            } catch (error) {
-                console.error("Gagal memuat daftar peserta:", error);
-                showAlert("Gagal memuat daftar peserta.", "gagal");
-                return {};
-            } finally {
-                hideLoading();
+            const snap = await get(pesertaRef);
+            const list = document.getElementById("daftarPeserta");
+            list.innerHTML = "";
+            if (snap.exists()) {
+                Object.entries(snap.val()).forEach(([nomor, p]) => {
+                    const li = document.createElement("li");
+                    li.textContent = `${p.nama} (${nomor})`;
+                    list.appendChild(li);
+                });
             }
         }
 
         // Absen hanya pulang
+        // Ganti fungsi absen lama Anda dengan yang ini
         async function absen(tipe) {
-            showLoading(); // Tampilkan loading saat memulai proses absen
-            const nomor = nomorInput.value.trim();
-            const alasan = alasanInput.value;
-            statusPesan.textContent = ""; // Bersihkan pesan sebelumnya
+            const nomor = document.getElementById("nomorInput").value.trim();
+            const alasan = document.getElementById("alasanInput").value;
+            const statusPesan = document.getElementById("statusPesan");
+            const preview = document.getElementById("previewPeserta");
 
             if (!nomor) {
                 statusPesan.textContent = "❌ Nomor peserta harus diisi!";
                 statusPesan.style.color = "red";
-                hideLoading();
+                setTimeout(() => statusPesan.textContent = "", 2500);
                 return;
             }
 
-            try {
-                const pesertaSnap = await get(child(ref(db), `peserta/${nomor}`));
-                if (!pesertaSnap.exists()) {
-                    statusPesan.textContent = "❌ Nomor tidak ditemukan!";
+            const pesertaSnap = await get(child(ref(db), `peserta/${nomor}`));
+            if (!pesertaSnap.exists()) {
+                statusPesan.textContent = "❌ Nomor tidak ditemukan!";
+                statusPesan.style.color = "red";
+                setTimeout(() => statusPesan.textContent = "", 2500);
+                return;
+            }
+
+            const p = pesertaSnap.val();
+            preview.innerHTML = p.foto ?
+                `<img src="${p.foto}" alt="${p.nama}"/><div><strong>${p.nama}</strong></div>` :
+                `<div><strong>${p.nama}</strong></div>`;
+            setTimeout(() => preview.innerHTML = "", 3000);
+
+            const now = new Date();
+            const tanggal = now.toISOString().slice(0, 10);
+            const todayRef = ref(db, `absensi/${tanggal}/${nomor}`);
+            const todaySnap = await get(todayRef);
+
+            // ===== HANYA LOGIKA ABSEN PULANG YANG DIGUNAKAN =====
+            if (tipe === "pulang") {
+                const dataAbsen = todaySnap.val();
+                if (dataAbsen && dataAbsen.waktuPulang) {
+                    statusPesan.textContent = "❌ Anda sudah melakukan absen pulang hari ini!";
                     statusPesan.style.color = "red";
-                    hideLoading();
                     return;
                 }
 
-                const p = pesertaSnap.val();
-                // Pratinjau akan diupdate oleh event listener nomorInput, jadi tidak perlu di sini lagi
-                // previewPeserta.innerHTML = p.foto ?
-                //     `<img src="${p.foto}" alt="${p.nama}"/><div><strong>${p.nama}</strong></div>` :
-                //     `<div><strong>${p.nama}</strong></div>`;
-                // setTimeout(() => previewPeserta.innerHTML = "", 3000); // Hapus pratinjau setelah 3 detik
+                // --- PERUBAHAN UTAMA ADA DI SINI ---
 
-                const now = new Date();
-                const tanggal = now.toISOString().slice(0, 10);
-                const todayRef = ref(db, `absensi/${tanggal}/${nomor}`);
-                const todaySnap = await get(todayRef);
+                // BARU: Ambil batas waktu dari admin, jika tidak ada, default ke "16:00"
+                const batasWaktuString = localStorage.getItem("jamBatasPulang") || "16:00";
+                const [batasJam, batasMenit] = batasWaktuString.split(':').map(Number);
 
-                // ===== HANYA LOGIKA ABSEN PULANG YANG DIGUNAKAN =====
-                if (tipe === "pulang") {
-                    const dataAbsen = todaySnap.val();
-                    if (dataAbsen && dataAbsen.waktuPulang) {
-                        statusPesan.textContent = "❌ Anda sudah melakukan absen pulang hari ini!";
-                        statusPesan.style.color = "red";
-                        hideLoading();
-                        return;
-                    }
+                // DIUBAH: Logika status pulang sekarang dinamis sesuai aturan admin
+                let statusPulang = "";
+                const jamSekarang = now.getHours();
+                const menitSekarang = now.getMinutes();
 
-                    // Ambil batas waktu dari admin, jika tidak ada, default ke "16:00"
-                    const batasWaktuString = localStorage.getItem("jamBatasPulang") || "16:00";
-                    const [batasJam, batasMenit] = batasWaktuString.split(':').map(Number);
-
-                    let statusPulang = "";
-                    const jamSekarang = now.getHours();
-                    const menitSekarang = now.getMinutes();
-
-                    if (alasan === "Sakit" || alasan === "Izin") {
-                        statusPulang = alasan; // Jika sakit atau izin, status mengikuti alasan
+                if (alasan === "Sakit" || alasan === "Izin") {
+                    statusPulang = alasan; // Jika sakit atau izin, status mengikuti alasan
+                } else {
+                    // Bandingkan waktu saat ini dengan batas waktu dari admin
+                    if (jamSekarang < batasJam || (jamSekarang === batasJam && menitSekarang < batasMenit)) {
+                        statusPulang = "Bolos"; // Pulang sebelum waktunya
                     } else {
-                        // Bandingkan waktu saat ini dengan batas waktu dari admin
-                        if (jamSekarang < batasJam || (jamSekarang === batasJam && menitSekarang < batasMenit)) {
-                            statusPulang = "Bolos"; // Pulang sebelum waktunya
-                        } else {
-                            statusPulang = "Tepat Waktu"; // Pulang tepat waktu atau lebih
-                        }
+                        statusPulang = "Tepat Waktu"; // Pulang tepat waktu atau lebih
                     }
-
-                    const dataToSet = {
-                        ...dataAbsen, // Pertahankan data lama jika ada (misal: waktuMasuk, jika suatu saat ditambahkan)
-                        nama: p.nama,
-                        nomor,
-                        waktuPulang: now.toISOString(),
-                        status: statusPulang,
-                        alasan: alasan,
-                        tanggal: tanggal
-                    };
-
-                    // Jika belum ada data sama sekali hari ini, pakai set. Jika sudah ada, pakai update.
-                    if (!todaySnap.exists()) {
-                        await set(todayRef, { waktuMasuk: "", ...dataToSet }); // waktuMasuk tetap kosong
-                    } else {
-                        await update(todayRef, dataToSet);
-                    }
-
-                    const pesanSukses = {
-                        "Bolos": "❌ Bolos! Anda pulang terlalu cepat.",
-                        "Tepat Waktu": "✅ Absen pulang berhasil, Tepat Waktu!",
-                        "Sakit": "🟡 Absen pulang karena Sakit.",
-                        "Izin": "🟡 Absen pulang karena Izin."
-                    };
-                    const warnaPesan = {
-                        "Bolos": "red",
-                        "Tepat Waktu": "green",
-                        "Sakit": "orange",
-                        "Izin": "orange"
-                    };
-
-                    statusPesan.textContent = pesanSukses[statusPulang] || "Absen pulang berhasil.";
-                    statusPesan.style.color = warnaPesan[statusPulang] || "green";
                 }
 
-                document.getElementById("formAbsen").reset();
-                previewPeserta.innerHTML = ""; // Kosongkan preview setelah absen
-                loadPeserta(); // Perbarui daftar peserta yang belum absen
-                renderTabel(); // Perbarui tabel setelah absen
-            } catch (error) {
-                console.error("Gagal melakukan absen:", error);
-                statusPesan.textContent = "Terjadi kesalahan saat absen. Coba lagi.";
-                statusPesan.style.color = "red";
-            } finally {
-                hideLoading(); // Sembunyikan loading setelah proses selesai
+                // --- AKHIR DARI PERUBAHAN ---
+
+                const dataToSet = {
+                    ...dataAbsen, // Pertahankan data lama jika ada (misal: waktuMasuk)
+                    nama: p.nama,
+                    nomor,
+                    waktuPulang: now.toISOString(),
+                    status: statusPulang,
+                    alasan: alasan,
+                    tanggal: tanggal
+                };
+
+                // Jika belum ada data sama sekali hari ini, pakai set. Jika sudah ada, pakai update.
+                if (!todaySnap.exists()) {
+                    await set(todayRef, { waktuMasuk: "", ...dataToSet });
+                } else {
+                    await update(todayRef, dataToSet);
+                }
+
+                const pesanSukses = {
+                    "Bolos": "❌ Bolos! Anda pulang terlalu cepat.",
+                    "Tepat Waktu": "✅ Absen pulang berhasil, Tepat Waktu!",
+                    "Sakit": "🟡 Absen pulang karena Sakit.",
+                    "Izin": "🟡 Absen pulang karena Izin."
+                };
+                const warnaPesan = {
+                    "Bolos": "red",
+                    "Tepat Waktu": "green",
+                    "Sakit": "orange",
+                    "Izin": "orange"
+                };
+
+                statusPesan.textContent = pesanSukses[statusPulang] || "Absen pulang berhasil.";
+                statusPesan.style.color = warnaPesan[statusPulang] || "green";
             }
+
+            document.getElementById("formAbsen").reset();
+            renderTabel(); // Perbarui tabel setelah absen
         }
 
         // Render tabel absensi
+        // Render tabel absensi
         async function renderTabel() {
-            showLoading();
             const tbody = document.getElementById("absenBody");
             const q = document.getElementById("cariInput").value.toLowerCase();
             tbody.innerHTML = "";
 
-            try {
-                const pesertaSnap = await get(pesertaRef);
-                const absensiSnap = await get(absensiRef);
+            const pesertaSnap = await get(pesertaRef);
+            const snap = await get(absensiRef);
+            if (!snap.exists() || !pesertaSnap.exists()) return;
 
-                if (!absensiSnap.exists() || !pesertaSnap.exists()) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="6" style="text-align:center; color:#999;">
-                                ❗ Belum ada data absensi atau peserta.
-                            </td>
-                        </tr>`;
-                    hideLoading();
-                    return;
-                }
+            const semuaPeserta = pesertaSnap.val();
+            const totalPeserta = Object.keys(semuaPeserta).length;
 
-                const semuaPeserta = pesertaSnap.val();
-                const totalPeserta = Object.keys(semuaPeserta).length;
+            const now = new Date();
+            const tanggalHariIni = now.toISOString().slice(0, 10);
+            const dataHariIni = snap.val()[tanggalHariIni];
 
-                const now = new Date();
-                const tanggalHariIni = now.toISOString().slice(0, 10);
-                const dataHariIni = absensiSnap.val()[tanggalHariIni];
-
-                // Jika tidak ada data sama sekali hari ini
-                if (!dataHariIni) {
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = `
-                        <td colspan="6" style="text-align:center; color:#999;">
-                            ❗ Belum ada data absensi hari ini.
-                        </td>`;
-                    tbody.appendChild(tr);
-                    hideLoading();
-                    return;
-                }
-
-                const jumlahAbsen = Object.keys(dataHariIni).length;
-
-                // Jika sudah semua absen, tampilkan hanya pesan saja
-                if (jumlahAbsen === totalPeserta) {
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = `
-                        <td colspan="6" style="text-align:center; font-weight:bold; color:green;">
-                            ✅ Absensi lengkap hari ini (${jumlahAbsen}/${totalPeserta})
-                        </td>`;
-                    tbody.appendChild(tr);
-                    hideLoading();
-                    return;
-                }
-
-                // Jika belum lengkap, tampilkan data peserta
-                let no = 1;
-                const dataArray = Object.entries(dataHariIni)
-                    .filter(([nomor, a]) => semuaPeserta[nomor] && (a.nama || "").toLowerCase().includes(q))
-                    .sort(([, a1], [, a2]) => (a1.nama || '').localeCompare(a2.nama || '')); // Urutkan berdasarkan nama
-
-                dataArray.forEach(([, a]) => {
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = `
-                        <td>${no++}</td>
-                        <td>${a.nama}</td>
-                        <td>${a.nomor}</td>     
-                        <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
-                        <td class="${a.status === 'Terlambat' ? 'status-terlambat' : a.status === 'Bolos' ? 'status-bolos' : a.status === 'Izin' ? 'status-izin' : a.status === 'Sakit' ? 'status-sakit' : 'status-tepat'}">${a.status || "-"}</td>
-                        <td>${a.alasan}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } catch (error) {
-                console.error("Gagal merender tabel absensi:", error);
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align:center; color:red;">
-                            Terjadi kesalahan saat memuat data tabel.
-                        </td>
-                    </tr>`;
-            } finally {
-                hideLoading();
+            // 🟥 Jika tidak ada data sama sekali hari ini
+            if (!dataHariIni) {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+            <td colspan="6" style="text-align:center; color:#999;">
+                ❗ Belum ada data absensi hari ini.
+            </td>`;
+                tbody.appendChild(tr);
+                return;
             }
-        }
 
-        // Fungsi untuk memperbarui jam digital
+            const jumlahAbsen = Object.keys(dataHariIni).length;
+
+            // ✅ Jika sudah semua absen, tampilkan hanya pesan saja
+            if (jumlahAbsen === totalPeserta) {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+            <td colspan="6" style="text-align:center; font-weight:bold; color:green;">
+                ✅ Absensi lengkap hari ini (${jumlahAbsen}/${totalPeserta})
+            </td>`;
+                tbody.appendChild(tr);
+                return;
+            }
+
+            // ⏳ Jika belum lengkap, tampilkan data peserta
+            let no = 1;
+            Object.entries(dataHariIni).forEach(([nomor, a]) => {
+                if (!semuaPeserta[nomor]) return; // abaikan data yang tidak lagi terdaftar
+                if (q && (a.nama || "").toLowerCase().includes(q) === false) return;
+
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+            <td>${no++}</td>
+            <td>${a.nama}</td>
+            <td>${a.nomor}</td>     
+            <td>${a.waktuPulang ? new Date(a.waktuPulang).toLocaleString("id-ID") : "-"}</td>
+            <td class="${a.status === 'Terlambat' ? 'status-terlambat' : a.status === 'Bolos' ? 'status-bolos' : a.status === 'Izin' ? 'status-izin' : a.status === 'Sakit' ? 'status-sakit' : 'status-tepat'}">${a.status || "-"}</td>
+            <td>${a.alasan}</td>
+        `;
+                tbody.appendChild(tr);
+            });
+
+        }
+        // <td>${a.waktuMasuk ? new Date(a.waktuMasuk).toLocaleString("id-ID") : "-"}</td>
         function updateJam() {
             const now = new Date();
             const jam = now.toLocaleTimeString("id-ID", { hour12: false });
             document.getElementById("jamSekarang").textContent = jam;
         }
-        setInterval(updateJam, 1000); // Perbarui setiap detik
-        updateJam(); // Panggil sekali saat inisialisasi
+        setInterval(updateJam, 1000);
+        updateJam();
 
-        // Event listener untuk input nomor (pratinjau peserta)
-        nomorInput.addEventListener("input", async () => {
-            const nomor = nomorInput.value.trim();
-            previewPeserta.innerHTML = ""; // Bersihkan pratinjau sebelumnya
-            statusPesan.textContent = ""; // Bersihkan pesan status
-
-            if (nomor.length > 0) {
-                showLoading();
-                try {
-                    const pesertaSnap = await get(child(ref(db), `peserta/${nomor}`));
-                    if (pesertaSnap.exists()) {
-                        const p = pesertaSnap.val();
-                        previewPeserta.innerHTML = p.foto ?
-                            `<img src="${p.foto}" alt="${p.nama}"/><div><strong>${p.nama}</strong></div>` :
-                            `<div><strong>${p.nama}</strong></div>`;
-                        statusPesan.textContent = "✅ Nomor ditemukan!";
-                        statusPesan.style.color = "green";
-                    } else {
-                        statusPesan.textContent = "❌ Nomor tidak ditemukan.";
-                        statusPesan.style.color = "red";
-                    }
-                } catch (error) {
-                    console.error("Error fetching participant for preview:", error);
-                    statusPesan.textContent = "Terjadi kesalahan saat mencari nomor.";
-                    statusPesan.style.color = "red";
-                } finally {
-                    hideLoading();
-                }
-            }
-        });
+        // Global access
+        window.absen = absen;
+        window.renderTabel = renderTabel;
 
         // Init
-        loadPeserta(); // Memuat daftar peserta saat halaman dimuat
-        renderTabel(); // Merender tabel absensi saat halaman dimuat
+        loadPeserta();
+        renderTabel();
 
-        // Sembunyikan tombol absen masuk (sesuai permintaan)
-        // document.getElementById("btnMasuk").style.display = "none";
-
-        // Event listener untuk tombol Absen Pulang
+        document.getElementById("btnMasuk").style.display = "none";
+        // document.getElementById("btnMasuk").onclick = () => absen('masuk');
+        const btnPulang = document.getElementById("btnPulang");
         btnPulang.onclick = async () => {
-            // Nonaktifkan tombol dan tampilkan pesan memproses
+            // Nonaktifkan tombol
             btnPulang.disabled = true;
             btnPulang.style.backgroundColor = "#ccc"; // abu-abu
             btnPulang.style.color = "#666"; // teks agak gelap
             btnPulang.textContent = "Memproses...";
 
-            await absen("pulang"); // Panggil fungsi absen
 
-            // Kembalikan tombol ke keadaan semula setelah jeda 3 detik
+            await absen("pulang");
+
+            // Jeda 3 detik
             setTimeout(() => {
                 btnPulang.disabled = false;
                 btnPulang.style.backgroundColor = "#4caf50"; // hijau semula
                 btnPulang.style.color = "#fff";
                 btnPulang.textContent = "Absen Pulang";
-                statusPesan.textContent = ""; // Hapus pesan status setelah tombol aktif kembali
             }, 3000);
+
         };
 
-        // Event listener untuk tombol Enter di form
         document.getElementById("formAbsen").addEventListener("keydown", function (e) {
             if (e.key === "Enter") {
                 e.preventDefault(); // mencegah form ke-submit default
-                btnPulang.click(); // Simulasikan klik tombol absen pulang
+                absen("pulang");
             }
         });
 
+
     </script>
+
+
 </body>
 
 </html>
